@@ -1,0 +1,5 @@
+.env.cli
+.env.server
+bin
+dev-data
+.vscode

@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package envmn;
+
+option go_package = "api/proto;proto";
+
+import "google/protobuf/empty.proto";
+
+service ClientService {
+  rpc GetClientVariables(GetClientVariablesRequest) returns (GetClientVariablesResponse);
+  rpc UpdateVariables(UpdateVariablesRequest) returns (google.protobuf.Empty);
+  rpc SubscribeOnUpdates(SubscribeOnUpdatesRequest) returns (stream SubscribeOnUpdatesResponse);
+}
+
+message GetClientVariablesRequest {
+  string environment_name = 1;
+  optional string access_key = 2;
+}
+
+message GetClientVariablesResponse {
+  map<string, string> variables = 1;
+}
+
+message UpdateVariablesRequest {
+  string environment_name = 1;
+  string access_key = 2;
+  map<string, string> variables = 3;
+}
+
+message SubscribeOnUpdatesRequest {
+  string environment_name = 1;
+  string access_key = 2;
+}
+
+message SubscribeOnUpdatesResponse {
+  string key = 1;
+}

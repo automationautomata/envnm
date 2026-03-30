@@ -1,0 +1,39 @@
+FROM golang:latest AS builder
+
+RUN apk add --no-cache git
+
+WORKDIR /envmn
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY pkg/. logs/. config/. cmd/. internal/. ./
+
+RUN CGO_ENABLED=1 GOOS=linux \
+    go build -o envmn-server cmd/server  \ 
+    go build -o envmn-cli cmd/cli 
+
+FROM alpine:latest
+
+WORKDIR /envmn
+
+COPY --from=builder /envmn .
+COPY scripts/dev-certs.sh .
+
+ENV SERVER_HOST=0.0.0.0 \    
+    SERVER_PORT=8080 \
+    SERVER_CA_CERT_PATH=/envmn/certs/ca.key \
+    SERVER_CERT_PATH=/envmn/certs/server.crt \
+    SERVER_KEY_PATH=/envmn/certs/server.key \
+    CLIENT_CERT_PATH=/envmn/certs/client.crt \
+    CLIENT_KEY_PATH=/envmn/certs/client.key \
+    POSTGRES_MIN_CONNECTIONS=5 \ 
+    POSTGRES_MAX_CONNECTIONS=20
+
+RUN ln -s /envmn/envmn-cli /usr/bin/envmn && \
+    mkdir /envmn/certs && \
+    dev-certs.sh /envmn/certs
+
+EXPOSE 8080
+
+CMD ["./envmn-server"]

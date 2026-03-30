@@ -1,22 +1,21 @@
 package event
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 )
 
+type EventName string
+
 type Event interface {
-	Name() string
+	Name() EventName
 	OccurredAt() time.Time
 	HasPayload() bool
 	Payload() json.Marshaler
 	IsSync() bool
 }
 
-type EventNotifier interface {
-	Notify(event Event)
-}
-
-type NotifierWith[T any] interface {
-	NotifyWith(arg T, event Event)
+type Notifier interface {
+	Notify(ctx context.Context, event Event)
 }

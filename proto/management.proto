@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package envmn.management;
+
+option go_package = "api/proto;proto";
+
+import "google/protobuf/empty.proto";
+
+service ManagementService {
+  // all requests require x-admin-password metadata
+  rpc CreateEnvironment(CreateEnvironmentRequest) returns (CreateEnvironmentResponse);
+  rpc GetAllEnvironments(GetAllEnvironmentsRequest) returns (GetAllEnvironmentsResponse);
+  rpc DeleteEnvironment(DeleteEnvironmentRequest) returns (google.protobuf.Empty);
+  rpc UpdateEnvironmentInfo(UpdateEnvironmentInfoRequest) returns (google.protobuf.Empty);
+
+  rpc CreateAccessPolicy(CreateAccessPolicyRequest) returns (CreateAccessPolicyResponse);
+  rpc RemovePolicy(RemovePolicyRequest) returns (google.protobuf.Empty);
+  rpc AddPolicyToEnvironment(AddPolicyToEnvironmentRequest) returns (google.protobuf.Empty);
+  rpc RemovePolicyFromEnvironment(RemovePolicyFromEnvironmentRequest) returns (google.protobuf.Empty);
+
+  rpc UpdateEnvironmentVariables(UpdateEnvironmentVariablesRequest) returns (google.protobuf.Empty);
+  rpc RemoveVariableFromEnvironment(RemoveVariableFromEnvironmentRequest) returns (google.protobuf.Empty);
+}
+
+message Environment {
+  string name = 1;
+  map<string, string> variables = 2;
+  string description = 3;
+  bool reserved = 4;
+}
+
+message CreateEnvironmentRequest {
+  string name = 1;
+  optional string description = 2;
+  map<string, string> variables = 3;
+}
+
+message CreateEnvironmentResponse {
+  string id = 1;
+}
+
+message GetAllEnvironmentsRequest {
+  bool reserved = 1;
+}
+
+message GetAllEnvironmentsResponse {
+  repeated Environment environments = 1;
+}
+
+message DeleteEnvironmentRequest {
+  string name = 1;
+}
+
+message UpdateEnvironmentInfoRequest {
+  string old_name = 1;
+  optional string new_name = 2;
+  optional string description = 3;
+}
+
+message CreateAccessPolicyRequest {
+  string name = 1;
+  string key = 2;
+  bool changes_allowed = 3;
+}
+
+message CreateAccessPolicyResponse {
+  string id = 1;
+}
+
+message RemovePolicyRequest {
+  string id = 1;
+}
+
+message AddPolicyToEnvironmentRequest {
+  string environment_name = 1;
+  string policy_id = 2;
+}
+
+message RemovePolicyFromEnvironmentRequest {
+  string environment_name = 1;
+  string policy_id = 2;
+}
+
+message UpdateEnvironmentVariablesRequest {
+  string environment_name = 1;
+  map<string, string> variables = 2;
+  optional string access_key = 3;
+}
+
+message RemoveVariableFromEnvironmentRequest {
+  string environment_name = 1;
+  string variable_key = 2;
+}
+

@@ -24,7 +24,7 @@ type Environment struct {
 	Description         string
 	variables           entities.Variables
 	accessPolicies      map[uuid.UUID]bool // true
-	lastVariablesUpdate time.Time
+	LastVariablesUpdate time.Time
 	CreatedAt           time.Time
 
 	events []event.Event
@@ -40,19 +40,15 @@ func NewEnvironment(name string, description string, vars entities.Variables) (*
 		ID:                  uuid.New(),
 		Name:                name,
 		Description:         description,
-		variables:           vars.Copy(),
+		variables:           vars,
 		accessPolicies:      make(map[uuid.UUID]bool),
-		lastVariablesUpdate: now,
+		LastVariablesUpdate: now,
 		CreatedAt:           now,
 	}, nil
 }
 
 func (e *Environment) Variables() entities.Variables {
 	return e.variables.Copy()
-}
-
-func (e *Environment) LastVariablesUpdate() time.Time {
-	return e.lastVariablesUpdate
 }
 
 func (e *Environment) UpdateVariables(vars entities.Variables) (new []vo.VariableKey, changed entities.Variables) {
@@ -70,7 +66,7 @@ func (e *Environment) UpdateVariables(vars entities.Variables) (new []vo.Variabl
 	}
 
 	if len(changed) != 0 && len(new) != 0 {
-		e.lastVariablesUpdate = time.Now().UTC()
+		e.LastVariablesUpdate = time.Now().UTC()
 	}
 
 	if len(changed) != 0 {
@@ -89,7 +85,7 @@ func (e *Environment) RemoveVariable(key vo.VariableKey) error {
 	}
 	delete(e.variables, key)
 
-	e.lastVariablesUpdate = time.Now().UTC()
+	e.LastVariablesUpdate = time.Now().UTC()
 	e.raise(events.NewVariableDeleted(key))
 	return nil
 }
@@ -111,16 +107,20 @@ func (e *Environment) HasAccess(accessPolicyID uuid.UUID) bool {
 	return ok
 }
 
+func (e *Environment) Policies() map[uuid.UUID]bool {
+	policies := make(map[uuid.UUID]bool, len(e.accessPolicies))
+	for k, v := range e.accessPolicies {
+		policies[k] = v
+	}
+	return policies
+}
+
 func (e *Environment) AccessPoliciesCount() int {
 	return len(e.accessPolicies)
 }
 
-func (e *Environment) AddPolicyToChange(policy *entities.AccessPolicy) {
-	e.accessPolicies[policy.ID] = true
-}
-
-func (e *Environment) AddPolicyToView(policy *entities.AccessPolicy) {
-	e.accessPolicies[policy.ID] = false
+func (e *Environment) AddPolicy(policyID uuid.UUID, allowChanges bool) {
+	e.accessPolicies[policyID] = allowChanges
 }
 
 func (e *Environment) RemoveAccessPolicy(accessPolicyID uuid.UUID) error {
