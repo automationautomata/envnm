@@ -6,6 +6,7 @@ import (
 	"envmn/internal/domain/environment/entities"
 	vo "envmn/internal/domain/environment/valueobjects"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -24,10 +25,16 @@ type AccessPolicyRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
+type EnvironmentInfoUpdate struct {
+	Name        string
+	Description *string
+}
+
 type EnvironmentRepository interface {
 	Save(ctx context.Context, env *aggregates.Environment) error
+	UpdateInfo(ctx context.Context, envID uuid.UUID, upd EnvironmentInfoUpdate) error
+	SetLastVariablesUpdate(ctx context.Context, envID uuid.UUID, upd time.Time) error
 	FindByName(ctx context.Context, name string) (*aggregates.Environment, error)
-	FindByID(ctx context.Context, id uuid.UUID) (*aggregates.Environment, error)
 	List(ctx context.Context) ([]*aggregates.Environment, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }

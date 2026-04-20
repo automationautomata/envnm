@@ -1,6 +1,11 @@
--- name: UpsertVariable :exec
+-- name: UpsertVariables :exec
 INSERT INTO variables (key, value, environment_id)
-VALUES ($1, $2, $3)
+SELECT
+  u.key,
+  u.value,
+  u.environment_id
+FROM UNNEST($1::variable_entry[])
+AS u(key, value, environment_id)
 ON CONFLICT (key, environment_id)
 DO UPDATE SET value = EXCLUDED.value;
 

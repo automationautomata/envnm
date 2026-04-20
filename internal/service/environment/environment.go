@@ -14,7 +14,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type environment struct {
+type service struct {
 	envRepo         ports.EnvironmentRepository
 	envPolicisRepo  ports.EnvironmentPoliciesRepository
 	reservedStorage ports.ReservedEnvironmentsStorage
@@ -26,8 +26,8 @@ func New(
 	reservedStorage ports.ReservedEnvironmentsStorage,
 	envPolicisRepo ports.EnvironmentPoliciesRepository,
 	publisher *event.EventPublisher,
-) *environment {
-	return &environment{
+) *service {
+	return &service{
 		envRepo:         envRepo,
 		reservedStorage: reservedStorage,
 		envPolicisRepo:  envPolicisRepo,
@@ -36,7 +36,7 @@ func New(
 }
 
 // CreateEnvironment — создаёт новое окружение
-func (s *environment) CreateEnvironment(ctx context.Context, input dto.CreateEnvironmentInput) (uuid.UUID, error) {
+func (s *service) CreateEnvironment(ctx context.Context, input dto.CreateEnvironmentInput) (uuid.UUID, error) {
 	vars := entities.NewVariables()
 	if input.Variables != nil {
 		for k, v := range input.Variables {
@@ -65,7 +65,7 @@ func (s *environment) CreateEnvironment(ctx context.Context, input dto.CreateEnv
 }
 
 // GetAllEnvironments — получить спимок всех окружений, если reserved = true, то только те, которые используются клиентами
-func (s *environment) GetAllEnvironments(ctx context.Context, input dto.GetAllEnvironmentsInput) ([]*dto.EnvironmentDTO, error) {
+func (s *service) GetAllEnvironments(ctx context.Context, input dto.GetAllEnvironmentsInput) ([]*dto.EnvironmentDTO, error) {
 	reserved, err := s.reservedStorage.List(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get reserved environmentts: %w", err)
@@ -110,7 +110,7 @@ func (s *environment) GetAllEnvironments(ctx context.Context, input dto.GetAllEn
 	return res, nil
 }
 
-func (s *environment) GetEnvironmentPolicies(ctx context.Context, input dto.GetEnvironmentPoliciesInput) ([]*dto.PolicyDTO, error) {
+func (s *service) GetEnvironmentPolicies(ctx context.Context, input dto.GetEnvironmentPoliciesInput) ([]*dto.PolicyDTO, error) {
 	env, err := s.getEnvironment(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, nil
@@ -133,7 +133,7 @@ func (s *environment) GetEnvironmentPolicies(ctx context.Context, input dto.GetE
 }
 
 // UpdateEnvironment — меняет имя/описание окружения
-func (s *environment) UpdateEnvironmentInfo(ctx context.Context, input dto.UpdateEnvironmentInfoInput) error {
+func (s *service) UpdateEnvironmentInfo(ctx context.Context, input dto.UpdateEnvironmentInfoInput) error {
 	if input.NewName == nil && input.Description == nil {
 		return nil
 	}
@@ -146,21 +146,24 @@ func (s *environment) UpdateEnvironmentInfo(ctx context.Context, input dto.Updat
 		return err
 	}
 
-	if input.NewName != nil && *input.NewName != "" && *input.NewName != env.Name {
-		env.Name = *input.NewName
+	upd := ports.EnvironmentInfoUpdate{
+		Name: env.Name,
+	}
+	if input.NewName != nil && *input.NewName != "" {
+		upd.Name = *input.NewName
 	}
 	if input.Description != nil && *input.Description != env.Description {
 		env.Description = *input.Description
 	}
-	if err := s.envRepo.Save(ctx, env); err != nil {
+
+	if err := s.envRepo.UpdateInfo(ctx, env.ID, upd); err != nil {
 		return err
 	}
-
 	return nil
 }
 
 // DeleteEnvironment — удаляет окружение
-func (s *environment) DeleteEnvironment(ctx context.Context, input dto.DeleteEnvironmentInput) error {
+func (s *service) DeleteEnvironment(ctx context.Context, input dto.DeleteEnvironmentInput) error {
 	env, err := s.getEnvironment(ctx, input.Name)
 	if err != nil {
 		return err
@@ -176,7 +179,7 @@ func (s *environment) DeleteEnvironment(ctx context.Context, input dto.DeleteEnv
 	return nil
 }
 
-func (s *environment) getEnvironment(ctx context.Context, name string) (*ag.Environment, error) {
+func (s *service) getEnvironment(ctx context.Context, name string) (*ag.Environment, error) {
 	env, err := s.envRepo.FindByName(ctx, name)
 	if err != nil {
 		return nil, fmt.Errorf("cannot find environmentt by name: %w", err)
@@ -187,7 +190,7 @@ func (s *environment) getEnvironment(ctx context.Context, name string) (*ag.Envi
 	return env, nil
 }
 
-func (s *environment) isEnvironmentReserved(ctx context.Context, envID uuid.UUID) error {
+func (s *service) isEnvironmentReserved(ctx context.Context, envID uuid.UUID) error {
 	isReserved, err := s.reservedStorage.IsReserved(ctx, envID)
 	if err != nil {
 		return fmt.Errorf("cannot check reserved envirnomrnt")
@@ -198,7 +201,7 @@ func (s *environment) isEnvironmentReserved(ctx context.Context, envID uuid.UUID
 	return nil
 }
 
-func (s *environment) copyVariables(vars entities.Variables) map[string]string {
+func (s *service) copyVariables(vars entities.Variables) map[string]string {
 	res := make(map[string]string, len(vars))
 	for k, v := range vars {
 		res[k.String()] = v.String()

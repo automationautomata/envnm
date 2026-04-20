@@ -3,11 +3,12 @@
 //   sqlc v1.30.0
 // source: variables.sql
 
-package postgres
+package queries
 
 import (
 	"context"
 
+	"envmn/internal/repository/postgres/dbtypes"
 	"github.com/google/uuid"
 )
 
@@ -16,8 +17,8 @@ DELETE FROM variables WHERE environment_id = $1 AND key = $2
 `
 
 type DeleteVariableParams struct {
-	EnvironmentID uuid.UUID `db:"environment_id" json:"environment_id"`
-	Key           string    `db:"key" json:"key"`
+	EnvironmentID uuid.UUID `db:"environment_id"`
+	Key           string    `db:"key"`
 }
 
 func (q *Queries) DeleteVariable(ctx context.Context, arg DeleteVariableParams) error {
@@ -30,8 +31,8 @@ SELECT key, value FROM variables WHERE environment_id = $1
 `
 
 type GetVariablesByEnvRow struct {
-	Key   string `db:"key" json:"key"`
-	Value string `db:"value" json:"value"`
+	Key   string `db:"key"`
+	Value string `db:"value"`
 }
 
 func (q *Queries) GetVariablesByEnv(ctx context.Context, environmentID uuid.UUID) ([]GetVariablesByEnvRow, error) {
@@ -54,20 +55,19 @@ func (q *Queries) GetVariablesByEnv(ctx context.Context, environmentID uuid.UUID
 	return items, nil
 }
 
-const upsertVariable = `-- name: UpsertVariable :exec
+const upsertVariables = `-- name: UpsertVariables :exec
 INSERT INTO variables (key, value, environment_id)
-VALUES ($1, $2, $3)
+SELECT
+  u.key,
+  u.value,
+  u.environment_id
+FROM UNNEST($1::variable_entry[])
+AS u(key, value, environment_id)
 ON CONFLICT (key, environment_id)
 DO UPDATE SET value = EXCLUDED.value
 `
 
-type UpsertVariableParams struct {
-	Key           string    `db:"key" json:"key"`
-	Value         string    `db:"value" json:"value"`
-	EnvironmentID uuid.UUID `db:"environment_id" json:"environment_id"`
-}
-
-func (q *Queries) UpsertVariable(ctx context.Context, arg UpsertVariableParams) error {
-	_, err := q.db.Exec(ctx, upsertVariable, arg.Key, arg.Value, arg.EnvironmentID)
+func (q *Queries) UpsertVariables(ctx context.Context, dollar_1 []dbtypes.VariableEntry) error {
+	_, err := q.db.Exec(ctx, upsertVariables, dollar_1)
 	return err
 }

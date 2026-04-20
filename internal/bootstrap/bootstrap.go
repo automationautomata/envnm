@@ -1,3 +1,5 @@
+//go:generate go run github.com/google/wire/cmd/wire
+
 //go:build wireinject
 // +build wireinject
 
@@ -7,7 +9,7 @@ import (
 	"context"
 	"envmn/config"
 	"envmn/internal/api/grpc"
-	"envmn/internal/cache"
+	repo "envmn/internal/repository"
 	"envmn/logs"
 	"fmt"
 	"net"
@@ -29,7 +31,7 @@ type App struct {
 func newApp(
 	grpcServer *grpc.Server,
 	db *pgxpool.Pool,
-	cacheRedis cache.RepositoryCacheRedis,
+	cacheRedis repo.RepositoryCacheRedis,
 	notifiersRedis notifiersRedis,
 	logger logs.Logger,
 	cfg config.ServerConfig,
@@ -95,13 +97,17 @@ func InitializeApp(cfg config.StartupConfig) (*App, error) {
 		provideRepositoryCacheRedis,
 		provideCacheTTL,
 		provideMetricsName,
-		provideMetricsNameString,
+		provideKeyGenSeed,
+		provideNotifiersRedis,
+		provideNotifierSettings,
 		provideEventPublisher,
 		provideAccessControlService,
+		provideClientDependincies,
+		provideManagmentDependincies,
 		RepoSet,
 		InfraSet,
-		CacheSet,
 		ServiceSet,
+		MetricsSet,
 		provideServerSettings,
 		provideGrpcServer,
 		newApp,

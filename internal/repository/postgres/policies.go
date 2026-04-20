@@ -3,21 +3,21 @@ package postgres
 import (
 	"context"
 	"envmn/internal/domain/environment/entities"
-	queries "envmn/internal/repository/queries/postgres"
+	"envmn/internal/repository/postgres/queries"
 
 	"github.com/google/uuid"
 )
 
 type accessPoliciesRepository struct {
-	q *queries.Queries
+	conn *connection
 }
 
-func NewAccessPoliciesRepository(q *queries.Queries) *accessPoliciesRepository {
-	return &accessPoliciesRepository{q: q}
+func NewAccessPoliciesRepository(conn *connection) *accessPoliciesRepository {
+	return &accessPoliciesRepository{conn: conn}
 }
 
 func (r *accessPoliciesRepository) Save(ctx context.Context, policy *entities.AccessPolicy) error {
-	err := r.q.CreatePolicy(ctx, queries.CreatePolicyParams{
+	err := r.conn.CreatePolicy(ctx, queries.CreatePolicyParams{
 		ID:   policy.ID,
 		Name: policy.Name,
 		Key:  policy.Key,
@@ -30,7 +30,7 @@ func (r *accessPoliciesRepository) Save(ctx context.Context, policy *entities.Ac
 }
 
 func (r *accessPoliciesRepository) FindByKey(ctx context.Context, key string) (*entities.AccessPolicy, error) {
-	row, err := r.q.FindPolicyByKey(ctx, key)
+	row, err := r.conn.FindPolicyByKey(ctx, key)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (r *accessPoliciesRepository) FindByKey(ctx context.Context, key string) (*
 }
 
 func (r *accessPoliciesRepository) FindByID(ctx context.Context, id uuid.UUID) (*entities.AccessPolicy, error) {
-	row, err := r.q.FindPolicyByID(ctx, id)
+	row, err := r.conn.FindPolicyByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (r *accessPoliciesRepository) FindByID(ctx context.Context, id uuid.UUID) (
 }
 
 func (r *accessPoliciesRepository) FindByName(ctx context.Context, name string) (*entities.AccessPolicy, error) {
-	row, err := r.q.FindPolicyByName(ctx, name)
+	row, err := r.conn.FindPolicyByName(ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (r *accessPoliciesRepository) FindByName(ctx context.Context, name string) 
 }
 
 func (r *accessPoliciesRepository) GetEnvironmentPolicies(ctx context.Context, envID uuid.UUID) ([]*entities.AccessPolicy, error) {
-	rows, err := r.q.GetPoliciesByEnv(ctx, envID)
+	rows, err := r.conn.GetPoliciesByEnv(ctx, envID)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (r *accessPoliciesRepository) GetEnvironmentPolicies(ctx context.Context, e
 }
 
 func (r *accessPoliciesRepository) AddToEnvironment(ctx context.Context, envID uuid.UUID, policy *entities.AccessPolicy) error {
-	err := r.q.CreatePolicy(ctx, queries.CreatePolicyParams{
+	err := r.conn.CreatePolicy(ctx, queries.CreatePolicyParams{
 		ID:   policy.ID,
 		Name: policy.Name,
 		Key:  policy.Key,
@@ -97,7 +97,7 @@ func (r *accessPoliciesRepository) AddToEnvironment(ctx context.Context, envID u
 		return err
 	}
 
-	return r.q.AddPolicyToEnvironment(ctx, queries.AddPolicyToEnvironmentParams{
+	return r.conn.AddPolicyToEnvironment(ctx, queries.AddPolicyToEnvironmentParams{
 		EnvironmentID:  envID,
 		AccessPolicyID: policy.ID,
 		ChangesAllowed: true, // или из policy если есть
@@ -105,12 +105,12 @@ func (r *accessPoliciesRepository) AddToEnvironment(ctx context.Context, envID u
 }
 
 func (r *accessPoliciesRepository) DeleteFromEnvironment(ctx context.Context, envID uuid.UUID, policyID uuid.UUID) error {
-	return r.q.DeletePolicyFromEnvironment(ctx, queries.DeletePolicyFromEnvironmentParams{
+	return r.conn.DeletePolicyFromEnvironment(ctx, queries.DeletePolicyFromEnvironmentParams{
 		EnvironmentID:  envID,
 		AccessPolicyID: policyID,
 	})
 }
 
 func (r *accessPoliciesRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	return r.q.DeletePolicy(ctx, id)
+	return r.conn.DeletePolicy(ctx, id)
 }

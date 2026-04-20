@@ -6,10 +6,10 @@ import (
 	"envmn/config"
 	"envmn/internal/api/grpc"
 	grpcauth "envmn/internal/api/grpc/auth"
-	"envmn/internal/cache"
 	"envmn/internal/domain/environment/services"
 	"envmn/internal/domain/event"
 	infra "envmn/internal/infrastructure"
+	metrics "envmn/internal/metircs"
 	repo "envmn/internal/repository"
 	"envmn/internal/service"
 	"envmn/internal/service/ports"
@@ -31,34 +31,30 @@ const (
 )
 
 var RepoSet = wire.NewSet(
-	repo.ProvideEnvironmentRepository,
-	repo.ProvideAccessPolicyRepository,
-	repo.ProvideAccessPolicyFinderSaver,
-	repo.ProvideEnvironmentPoliciesRepository,
-	repo.ProvideEnvironmentVariablesRepository,
+	repo.ProvideRedisCacheSettings,
+	repo.ProvideEnvironmentRepositories,
+	repo.ProvideAccessPolicyRepositories,
+	repo.ProvideCachedAccessPolicyRepository,
+	repo.ProvideCachedAccessPolicyFinderSaver,
+	repo.ProvideCachedEnvironmentRepository,
+	repo.ProvideCachedEnvironmentPoliciesRepository,
+	repo.ProvideCachedEnvironmentVariablesRepository,
+)
+
+var MetricsSet = wire.NewSet(
+	metrics.ProvideRepositoryCacheMetrics,
 )
 
 var InfraSet = wire.NewSet(
-	provideKeyGenSeed,
-	provideNotifiersRedis,
 	infra.ProvideReservedEnvironmentsStorage,
 	infra.ProvideClientKeyGenerator,
 	infra.ProvideKeyGenerator,
-	provideNotifierSettings,
 	infra.ProvideNotifier,
-)
-
-var CacheSet = wire.NewSet(
-	cache.ProvideRedisCacheSettings,
-	cache.ProvidePolicyRepositoryCache,
-	cache.ProvideEnvironmentRepositoryCache,
 )
 
 var ServiceSet = wire.NewSet(
 	service.ProvideClient,
 	service.ProvideManagement,
-	provideClientDependincies,
-	provideManagmentDependincies,
 )
 
 func providePostgresDB(cfg config.PostgresDBConfig) (*pgxpool.Pool, error) {
@@ -82,7 +78,7 @@ func provideNotifiersRedis(cfg config.RedisConfig) (notifiersRedis, error) {
 	return redisClient(cfg.Host, cfg.Port, notifiersRedisDB)
 }
 
-func provideRepositoryCacheRedis(cfg config.RedisConfig) (cache.RepositoryCacheRedis, error) {
+func provideRepositoryCacheRedis(cfg config.RedisConfig) (repo.RepositoryCacheRedis, error) {
 	return redisClient(cfg.Host, cfg.Port, repositoryCacheRedisDB)
 }
 
@@ -92,8 +88,8 @@ func provideRootLogger() logs.Logger {
 	)
 }
 
-func provideCacheLogs(root logs.Logger) cache.CacheLogger {
-	return cache.CacheLogger(root.Child("cache"))
+func provideCacheLogs(root logs.Logger) repo.CacheLogger {
+	return repo.CacheLogger(root.Child("cache"))
 }
 
 type notifiersRetrierLogger logs.Logger
@@ -114,47 +110,48 @@ func provideKeyGenSeed(cfg config.SecretKeysConfig) (infra.KeySeed, error) {
 	return infra.KeySeed(key), nil
 }
 
-func provideCacheTTL(cfg config.CacheConfig) cache.CacheTTL {
-	return cache.CacheTTL(cfg.CacheTTL)
+func provideCacheTTL(cfg config.CacheConfig) repo.CacheTTL {
+	return repo.CacheTTL(cfg.CacheTTL)
 }
 
-func provideMetricsName() cache.RepositoryCacheMetricsName {
+func provideMetricsName() metrics.RepositoryCacheMetricsName {
 	return repositoryCacheMetricsName
-}
-
-func provideMetricsNameString() string {
-	return string(repositoryCacheMetricsName)
 }
 
 func provideEventPublisher() *event.EventPublisher {
 	return event.NewEventPublisher()
 }
 
-func provideAccessControlService(policyRepo cache.PolicyRepositoryCache, keyGen services.KeyGenerator) *services.AccessControlService {
-	return services.NewAccessControlService(policyRepo, keyGen)
+func provideAccessControlService(
+	repo services.AccessPolicyFinderSaver,
+	keyGen services.KeyGenerator,
+) *services.AccessControlService {
+	return services.NewAccessControlService(repo, keyGen)
 }
 
 func provideManagmentDependincies(
-	envCache cache.EnvironmentRepositoryCache,
-	policyRepo cache.PolicyRepositoryCache,
+	envRepo ports.EnvironmentRepository,
+	envPolicyRepo ports.EnvironmentPoliciesRepository,
+	envVarsRepo ports.EnvironmentVariablesRepository,
+	policyRepo ports.AccessPolicyRepository,
 	reservedStorage ports.ReservedEnvironmentsStorage,
-	publisher *event.EventPublisher,
 	accessControl *services.AccessControlService,
+	publisher *event.EventPublisher,
 ) service.ManagmentDependincies {
 	return service.ManagmentDependincies{
-		EnvironmentRepository:          envCache,
+		EnvironmentRepository:          envRepo,
 		ReservedEnvironmentsStorage:    reservedStorage,
 		AccessPolicyRepository:         policyRepo,
-		EnvironmentPoliciesRepository:  envCache,
-		EnvironmentVariablesRepository: envCache,
+		EnvironmentPoliciesRepository:  envPolicyRepo,
+		EnvironmentVariablesRepository: envVarsRepo,
 		EventPublisher:                 publisher,
 		AccessControlService:           accessControl,
 	}
 }
 
 func provideClientDependincies(
-	envCache cache.EnvironmentRepositoryCache,
-	policyRepo cache.PolicyRepositoryCache,
+	envRepo ports.EnvironmentRepository,
+	envVarsRepo ports.EnvironmentVariablesRepository,
 	reservedStorage ports.ReservedEnvironmentsStorage,
 	publisher *event.EventPublisher,
 	accessControl *services.AccessControlService,
@@ -162,9 +159,9 @@ func provideClientDependincies(
 	keyGen ports.ClientKeyGenerator,
 ) service.ClientDependincies {
 	return service.ClientDependincies{
-		EnvironmentRepository:          envCache,
+		EnvironmentRepository:          envRepo,
 		ReservedEnvironmentsStorage:    reservedStorage,
-		EnvironmentVariablesRepository: envCache,
+		EnvironmentVariablesRepository: envVarsRepo,
 		EventPublisher:                 publisher,
 		AccessControlService:           accessControl,
 		Notifier:                       notifier,
@@ -172,7 +169,11 @@ func provideClientDependincies(
 	}
 }
 
-func provideNotifierSettings(rdb notifiersRedis, log logs.Logger, retrier *retry.Retry) infra.NotifierSettings {
+func provideNotifierSettings(
+	rdb notifiersRedis,
+	log logs.Logger,
+	retrier *retry.Retry,
+) infra.NotifierSettings {
 	return infra.NotifierSettings{
 		Redis: rdb,
 		Log:   log,
@@ -185,15 +186,16 @@ func provideServerSettings(logger logs.Logger, cfg config.CertificateConfig) (gr
 	if err != nil {
 		return grpc.ServerSettigns{}, err
 	}
-
-	managementAllowedIPs := []string{"127.0.0.1", "::1"}
 	return grpc.ServerSettigns{
-		Logger:               logger,
-		Credentials:          creds,
-		ManagementAllowedIPs: managementAllowedIPs,
+		Logger:      logger,
+		Credentials: creds,
 	}, nil
 }
 
-func provideGrpcServer(client *service.Client, management *service.Management, settings grpc.ServerSettigns) (*grpc.Server, error) {
+func provideGrpcServer(
+	client *service.Client,
+	management *service.Management,
+	settings grpc.ServerSettigns,
+) (*grpc.Server, error) {
 	return grpc.NewServer(client, management, settings)
 }

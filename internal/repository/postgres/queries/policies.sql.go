@@ -3,7 +3,7 @@
 //   sqlc v1.30.0
 // source: policies.sql
 
-package postgres
+package queries
 
 import (
 	"context"
@@ -17,9 +17,9 @@ VALUES ($1, $2, $3)
 `
 
 type AddPolicyToEnvironmentParams struct {
-	EnvironmentID  uuid.UUID `db:"environment_id" json:"environment_id"`
-	AccessPolicyID uuid.UUID `db:"access_policy_id" json:"access_policy_id"`
-	ChangesAllowed bool      `db:"changes_allowed" json:"changes_allowed"`
+	EnvironmentID  uuid.UUID `db:"environment_id"`
+	AccessPolicyID uuid.UUID `db:"access_policy_id"`
+	ChangesAllowed bool      `db:"changes_allowed"`
 }
 
 func (q *Queries) AddPolicyToEnvironment(ctx context.Context, arg AddPolicyToEnvironmentParams) error {
@@ -33,9 +33,9 @@ VALUES ($1, $2, $3)
 `
 
 type CreatePolicyParams struct {
-	ID   uuid.UUID `db:"id" json:"id"`
-	Name string    `db:"name" json:"name"`
-	Key  string    `db:"key" json:"key"`
+	ID   uuid.UUID `db:"id"`
+	Name string    `db:"name"`
+	Key  string    `db:"key"`
 }
 
 func (q *Queries) CreatePolicy(ctx context.Context, arg CreatePolicyParams) error {
@@ -59,8 +59,8 @@ WHERE environment_id = $1 AND access_policy_id = $2
 `
 
 type DeletePolicyFromEnvironmentParams struct {
-	EnvironmentID  uuid.UUID `db:"environment_id" json:"environment_id"`
-	AccessPolicyID uuid.UUID `db:"access_policy_id" json:"access_policy_id"`
+	EnvironmentID  uuid.UUID `db:"environment_id"`
+	AccessPolicyID uuid.UUID `db:"access_policy_id"`
 }
 
 func (q *Queries) DeletePolicyFromEnvironment(ctx context.Context, arg DeletePolicyFromEnvironmentParams) error {
@@ -75,9 +75,9 @@ WHERE id = $1
 `
 
 type FindPolicyByIDRow struct {
-	ID   uuid.UUID `db:"id" json:"id"`
-	Name string    `db:"name" json:"name"`
-	Key  string    `db:"key" json:"key"`
+	ID   uuid.UUID `db:"id"`
+	Name string    `db:"name"`
+	Key  string    `db:"key"`
 }
 
 func (q *Queries) FindPolicyByID(ctx context.Context, id uuid.UUID) (FindPolicyByIDRow, error) {
@@ -94,9 +94,9 @@ WHERE key = $1
 `
 
 type FindPolicyByKeyRow struct {
-	ID   uuid.UUID `db:"id" json:"id"`
-	Name string    `db:"name" json:"name"`
-	Key  string    `db:"key" json:"key"`
+	ID   uuid.UUID `db:"id"`
+	Name string    `db:"name"`
+	Key  string    `db:"key"`
 }
 
 func (q *Queries) FindPolicyByKey(ctx context.Context, key string) (FindPolicyByKeyRow, error) {
@@ -113,9 +113,9 @@ WHERE name = $1
 `
 
 type FindPolicyByNameRow struct {
-	ID   uuid.UUID `db:"id" json:"id"`
-	Name string    `db:"name" json:"name"`
-	Key  string    `db:"key" json:"key"`
+	ID   uuid.UUID `db:"id"`
+	Name string    `db:"name"`
+	Key  string    `db:"key"`
 }
 
 func (q *Queries) FindPolicyByName(ctx context.Context, name string) (FindPolicyByNameRow, error) {
@@ -133,10 +133,10 @@ WHERE ep.environment_id = $1
 `
 
 type GetPoliciesByEnvRow struct {
-	ID             uuid.UUID `db:"id" json:"id"`
-	Name           string    `db:"name" json:"name"`
-	Key            string    `db:"key" json:"key"`
-	ChangesAllowed bool      `db:"changes_allowed" json:"changes_allowed"`
+	ID             uuid.UUID `db:"id"`
+	Name           string    `db:"name"`
+	Key            string    `db:"key"`
+	ChangesAllowed bool      `db:"changes_allowed"`
 }
 
 func (q *Queries) GetPoliciesByEnv(ctx context.Context, environmentID uuid.UUID) ([]GetPoliciesByEnvRow, error) {

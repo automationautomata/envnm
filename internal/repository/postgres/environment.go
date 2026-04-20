@@ -5,66 +5,80 @@ import (
 	"envmn/internal/domain/environment/aggregates"
 	"envmn/internal/domain/environment/entities"
 	vo "envmn/internal/domain/environment/valueobjects"
-	queries "envmn/internal/repository/queries/postgres"
+	"envmn/internal/repository/postgres/dbtypes"
+	"envmn/internal/repository/postgres/queries"
+	"envmn/internal/service/ports"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 type environmentsRepository struct {
-	q *queries.Queries
+	conn *connection
 }
 
-func NewEnvironmentsRepository(q *queries.Queries) *environmentsRepository {
-	return &environmentsRepository{q: q}
+func NewEnvironmentsRepository(conn *connection) *environmentsRepository {
+	return &environmentsRepository{conn: conn}
 }
 
 func (r *environmentsRepository) Save(ctx context.Context, env *aggregates.Environment) error {
-	err := r.q.CreateEnvironment(ctx, queries.CreateEnvironmentParams{
-		ID:                  env.ID,
-		Name:                env.Name,
-		Description:         nullableString(env.Description),
-		LastVariablesUpdate: env.LastVariablesUpdate,
-		CreatedAt:           env.CreatedAt,
-	})
-	if err != nil {
-		return fmt.Errorf("create environment: %w", err)
-	}
-
-	for k, v := range env.Variables() {
-		err = r.q.UpsertVariable(ctx, queries.UpsertVariableParams{
-			Key:           string(k),
-			Value:         string(v),
-			EnvironmentID: env.ID,
+	return r.conn.transaction(ctx, func(q *queries.Queries) error {
+		err := q.CreateEnvironment(ctx, queries.CreateEnvironmentParams{
+			ID:                  env.ID,
+			Name:                env.Name,
+			Description:         nullableString(env.Description),
+			LastVariablesUpdate: env.LastVariablesUpdate,
+			CreatedAt:           env.CreatedAt,
 		})
+		if err != nil {
+			return fmt.Errorf("create environment: %w", err)
+		}
+
+		variables := env.Variables()
+		inserted := make([]dbtypes.VariableEntry, 0, len(variables))
+		for k, v := range variables {
+			inserted = append(inserted, dbtypes.VariableEntry{
+				Key:           k.String(),
+				Value:         v.String(),
+				EnvironmentID: env.ID,
+			})
+		}
+
+		err = q.UpsertVariables(ctx, inserted)
 		if err != nil {
 			return fmt.Errorf("upsert variable: %w", err)
 		}
-	}
-
-	return nil
+		return nil
+	})
 }
 
-func (r *environmentsRepository) FindByID(ctx context.Context, id uuid.UUID) (*aggregates.Environment, error) {
-	env, err := r.q.GetEnvironmentByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
+func (r *environmentsRepository) UpdateInfo(ctx context.Context, envID uuid.UUID, upd ports.EnvironmentInfoUpdate) error {
+	return r.conn.UpdateEnvironmentInfo(ctx, queries.UpdateEnvironmentInfoParams{
+		ID:          envID,
+		Name:        upd.Name,
+		Description: upd.Description,
+	})
+}
 
-	return r.buildEnvironment(ctx, env)
+func (r *environmentsRepository) SetLastVariablesUpdate(ctx context.Context, envID uuid.UUID, upd time.Time) error {
+	return r.conn.UpdateEnvironmentLastVariablesUpdate(ctx, queries.UpdateEnvironmentLastVariablesUpdateParams{
+		ID:                  envID,
+		LastVariablesUpdate: upd,
+	})
 }
 
 func (r *environmentsRepository) FindByName(ctx context.Context, name string) (*aggregates.Environment, error) {
-	env, err := r.q.GetEnvironmentByName(ctx, name)
+	env, err := r.conn.GetEnvironmentByName(ctx, name)
 	if err != nil {
 		return nil, err
 	}
 
-	return r.buildEnvironment(ctx, env)
+	return r.toEnvironment(ctx, env)
 }
 
 func (r *environmentsRepository) List(ctx context.Context) ([]*aggregates.Environment, error) {
-	rows, err := r.q.ListEnvironments(ctx)
+	rows, err := r.conn.ListEnvironments(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +86,7 @@ func (r *environmentsRepository) List(ctx context.Context) ([]*aggregates.Enviro
 	result := make([]*aggregates.Environment, 0, len(rows))
 
 	for _, row := range rows {
-		env, err := r.buildEnvironment(ctx, row)
+		env, err := r.toEnvironment(ctx, row)
 		if err != nil {
 			return nil, err
 		}
@@ -83,20 +97,16 @@ func (r *environmentsRepository) List(ctx context.Context) ([]*aggregates.Enviro
 }
 
 func (r *environmentsRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	return r.q.DeleteEnvironment(ctx, id)
+	return r.conn.DeleteEnvironment(ctx, id)
 }
 
-func (r *environmentsRepository) buildEnvironment(
-	ctx context.Context,
-	env queries.Environment,
-) (*aggregates.Environment, error) {
-
-	varsRows, err := r.q.GetVariablesByEnv(ctx, env.ID)
+func (r *environmentsRepository) toEnvironment(ctx context.Context, env queries.Environment) (*aggregates.Environment, error) {
+	varsRows, err := r.conn.GetVariablesByEnv(ctx, env.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	policyRows, err := r.q.GetPoliciesByEnv(ctx, env.ID)
+	policyRows, err := r.conn.GetPoliciesByEnv(ctx, env.ID)
 	if err != nil {
 		return nil, err
 	}

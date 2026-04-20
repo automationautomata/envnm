@@ -3,7 +3,7 @@
 //   sqlc v1.30.0
 // source: environment.sql
 
-package postgres
+package queries
 
 import (
 	"context"
@@ -18,11 +18,11 @@ VALUES ($1, $2, $3, $4, $5)
 `
 
 type CreateEnvironmentParams struct {
-	ID                  uuid.UUID `db:"id" json:"id"`
-	Name                string    `db:"name" json:"name"`
-	Description         *string   `db:"description" json:"description"`
-	LastVariablesUpdate time.Time `db:"last_variables_update" json:"last_variables_update"`
-	CreatedAt           time.Time `db:"created_at" json:"created_at"`
+	ID                  uuid.UUID `db:"id"`
+	Name                string    `db:"name"`
+	Description         *string   `db:"description"`
+	LastVariablesUpdate time.Time `db:"last_variables_update"`
+	CreatedAt           time.Time `db:"created_at"`
 }
 
 func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentParams) error {
@@ -107,4 +107,37 @@ func (q *Queries) ListEnvironments(ctx context.Context) ([]Environment, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateEnvironmentInfo = `-- name: UpdateEnvironmentInfo :exec
+UPDATE environments
+SET 
+  name = COALESCE($3, name),
+  description= COALESCE($2, description)
+WHERE id = $1
+`
+
+type UpdateEnvironmentInfoParams struct {
+	ID          uuid.UUID `db:"id"`
+	Description *string   `db:"description"`
+	Name        string    `db:"name"`
+}
+
+func (q *Queries) UpdateEnvironmentInfo(ctx context.Context, arg UpdateEnvironmentInfoParams) error {
+	_, err := q.db.Exec(ctx, updateEnvironmentInfo, arg.ID, arg.Description, arg.Name)
+	return err
+}
+
+const updateEnvironmentLastVariablesUpdate = `-- name: UpdateEnvironmentLastVariablesUpdate :exec
+UPDATE environments SET last_variables_update = $2 WHERE id = $1
+`
+
+type UpdateEnvironmentLastVariablesUpdateParams struct {
+	ID                  uuid.UUID `db:"id"`
+	LastVariablesUpdate time.Time `db:"last_variables_update"`
+}
+
+func (q *Queries) UpdateEnvironmentLastVariablesUpdate(ctx context.Context, arg UpdateEnvironmentLastVariablesUpdateParams) error {
+	_, err := q.db.Exec(ctx, updateEnvironmentLastVariablesUpdate, arg.ID, arg.LastVariablesUpdate)
+	return err
 }

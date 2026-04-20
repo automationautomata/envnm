@@ -25,23 +25,29 @@ type ServerSettigns struct {
 }
 
 func NewServer(client *service.Client, management *service.Management, settings ServerSettigns) (*Server, error) {
-	managementServiceName := pb.ManagementService_ServiceDesc.ServiceName
+	opts := []grpc.ServerOption{
+		grpc.Creds(settings.Credentials),
+	}
 
-	s := &Server{
-		Server: grpc.NewServer(
-			grpc.Creds(settings.Credentials),
+	if len(settings.ManagementAllowedIPs) != 0 {
+		managementServiceName := pb.ManagementService_ServiceDesc.ServiceName
+
+		opts = append(opts,
 			grpc.ChainUnaryInterceptor(
 				selector.UnaryServerInterceptor(
 					inc.IPWhitelist(settings.ManagementAllowedIPs...),
 					selector.MatchFunc(serviceMatcher(managementServiceName)),
 				),
 			),
-		),
+		)
 	}
+
+	s := grpc.NewServer(opts...)
 
 	pb.RegisterClientServiceServer(s, newClientServiceServer(client, settings.Logger))
 	pb.RegisterManagementServiceServer(s, newManagementServiceServer(management, settings.Logger))
-	return s, nil
+
+	return &Server{Server: s}, nil
 }
 
 func serviceMatcher(name string) func(ctx context.Context, callMeta interceptors.CallMeta) bool {

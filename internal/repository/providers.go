@@ -1,30 +1,123 @@
 package repository
 
 import (
-	domain "envmn/internal/domain/environment/services"
+	"envmn/internal/repository/cache"
+	"envmn/internal/repository/decorators"
 	"envmn/internal/repository/postgres"
-	pgqueries "envmn/internal/repository/queries/postgres"
 	"envmn/internal/service/ports"
 
+	"envmn/internal/domain/environment/services"
+	"envmn/logs"
+	"time"
+
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
-func ProvideEnvironmentRepository(db *pgxpool.Pool) ports.EnvironmentRepository {
-	return postgres.NewEnvironmentsRepository(pgqueries.New(db))
+type EnvironmentRepositories struct {
+	ports.EnvironmentRepository
+	ports.EnvironmentPoliciesRepository
+	ports.EnvironmentVariablesRepository
 }
 
-func ProvideEnvironmentPoliciesRepository(db *pgxpool.Pool) ports.EnvironmentPoliciesRepository {
-	return postgres.NewAccessPoliciesRepository(pgqueries.New(db))
+type AccessPolicyRepositories struct {
+	services.AccessPolicyFinderSaver
+	ports.AccessPolicyRepository
 }
 
-func ProvideAccessPolicyRepository(db *pgxpool.Pool) domain.AccessPolicyFinderSaver {
-	return postgres.NewAccessPoliciesRepository(pgqueries.New(db))
+func ProvideEnvironmentRepositories(db *pgxpool.Pool) EnvironmentRepositories {
+	return EnvironmentRepositories{
+		postgres.NewEnvironmentsRepository(postgres.NewConnection(db)),
+		postgres.NewAccessPoliciesRepository(postgres.NewConnection(db)),
+		postgres.NewVariablesRepository(postgres.NewConnection(db)),
+	}
 }
 
-func ProvideAccessPolicyFinderSaver(db *pgxpool.Pool) ports.AccessPolicyRepository {
-	return postgres.NewAccessPoliciesRepository(pgqueries.New(db))
+func ProvideAccessPolicyRepositories(db *pgxpool.Pool) AccessPolicyRepositories {
+	return AccessPolicyRepositories{
+		postgres.NewAccessPoliciesRepository(postgres.NewConnection(db)),
+		postgres.NewAccessPoliciesRepository(postgres.NewConnection(db)),
+	}
 }
 
-func ProvideEnvironmentVariablesRepository(db *pgxpool.Pool) ports.EnvironmentVariablesRepository {
-	return postgres.NewVariablesRepository(pgqueries.New(db))
+type (
+	RepositoryCacheRedis *redis.Client
+	CacheLogger          logs.Logger
+	CacheTTL             time.Duration
+)
+
+func ProvideRedisCacheSettings(
+	rdb RepositoryCacheRedis,
+	ttl CacheTTL,
+	metrics cache.RepositoryMetrics,
+) cache.RedisCacheSettings {
+	return cache.RedisCacheSettings{Redis: rdb, TTL: time.Duration(ttl)}
+}
+
+func ProvideCachedEnvironmentRepository(
+	log CacheLogger,
+	settings cache.RedisCacheSettings,
+	repos EnvironmentRepositories,
+) ports.EnvironmentRepository {
+	return decorators.NewEnvironmentRepositoryCache(
+		log,
+		settings,
+		repos.EnvironmentRepository,
+		repos.EnvironmentVariablesRepository,
+		repos.EnvironmentPoliciesRepository,
+	)
+}
+
+func ProvideCachedEnvironmentVariablesRepository(
+	log CacheLogger,
+	settings cache.RedisCacheSettings,
+	repos EnvironmentRepositories,
+) ports.EnvironmentVariablesRepository {
+	return decorators.NewEnvironmentRepositoryCache(
+		log,
+		settings,
+		repos.EnvironmentRepository,
+		repos.EnvironmentVariablesRepository,
+		repos.EnvironmentPoliciesRepository,
+	)
+}
+
+func ProvideCachedEnvironmentPoliciesRepository(
+	log CacheLogger,
+	settings cache.RedisCacheSettings,
+	repos EnvironmentRepositories,
+) ports.EnvironmentPoliciesRepository {
+	return decorators.NewEnvironmentRepositoryCache(
+		log,
+		settings,
+		repos.EnvironmentRepository,
+		repos.EnvironmentVariablesRepository,
+		repos.EnvironmentPoliciesRepository,
+	)
+}
+
+func ProvideCachedAccessPolicyFinderSaver(
+	log CacheLogger,
+	settings cache.RedisCacheSettings,
+	repos AccessPolicyRepositories,
+) services.AccessPolicyFinderSaver {
+	return decorators.NewPolicyRepositoryCache(
+		log,
+		settings,
+		repos.AccessPolicyRepository,
+		repos.AccessPolicyFinderSaver,
+	)
+}
+
+func ProvideCachedAccessPolicyRepository(
+	log CacheLogger,
+	settings cache.RedisCacheSettings,
+	repos AccessPolicyRepositories,
+) ports.AccessPolicyRepository {
+	return decorators.NewPolicyRepositoryCache(
+		log,
+		settings,
+		repos.AccessPolicyRepository,
+		repos.AccessPolicyFinderSaver,
+	)
 }

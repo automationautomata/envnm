@@ -8,6 +8,15 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type LogLevel string
+
+const (
+	Info  LogLevel = "INFO"
+	Debug LogLevel = "DEBUG"
+	Warn  LogLevel = "WARN"
+	Error LogLevel = "ERROR"
+)
+
 type CertificateConfig struct {
 	CACertPath string `envPrefix:"CA_CERT_PATH"`
 	CertPath   string `env:"CERT_PATH"`
@@ -62,11 +71,12 @@ type StartupConfig struct {
 	Notifiers   NotifiersConfig
 	DB          PostgresDBConfig
 	Keys        SecretKeysConfig
+	LogLevel    LogLevel `env:"LOG_LEVEL"`
 }
 
 type CLIClientConfig struct {
 	Server      ServerConfig      `envPrefix:"ENVMN_"`
-	Certificate CertificateConfig `envPrefix:"CLIENT_"`
+	Certificate CertificateConfig `envPrefix:"ENVMN_"`
 }
 
 func Load[T StartupConfig | CLIClientConfig]() (T, error) {

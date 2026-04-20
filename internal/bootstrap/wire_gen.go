@@ -10,61 +10,55 @@ import (
 	"context"
 	"envmn/config"
 	"envmn/internal/api/grpc"
-	"envmn/internal/cache"
 	"envmn/internal/infrastructure"
+	"envmn/internal/metircs"
 	"envmn/internal/repository"
 	"envmn/internal/service"
 	"envmn/logs"
 	"fmt"
-	"net"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
+	"net"
 )
 
 // Injectors from bootstrap.go:
 
 // Wire injector function
 func InitializeApp(cfg config.StartupConfig) (*App, error) {
-	cacheRepositoryCacheMetricsName := provideMetricsName()
+	logger := provideRootLogger()
+	cacheLogger := provideCacheLogs(logger)
 	redisConfig := cfg.Redis
 	repositoryCacheRedis, err := provideRepositoryCacheRedis(redisConfig)
 	if err != nil {
 		return nil, err
 	}
-	logger := provideRootLogger()
-	cacheLogger := provideCacheLogs(logger)
 	cacheConfig := cfg.Cache
 	cacheTTL := provideCacheTTL(cacheConfig)
-	redisCacheSettings := cache.ProvideRedisCacheSettings(repositoryCacheRedis, cacheLogger, cacheTTL)
+	metricsRepositoryCacheMetricsName := provideMetricsName()
+	repositoryMetrics, err := metrics.ProvideRepositoryCacheMetrics(metricsRepositoryCacheMetricsName)
+	if err != nil {
+		return nil, err
+	}
+	redisCacheSettings := repository.ProvideRedisCacheSettings(repositoryCacheRedis, cacheTTL, repositoryMetrics)
 	postgresDBConfig := cfg.DB
 	pool, err := providePostgresDB(postgresDBConfig)
 	if err != nil {
 		return nil, err
 	}
-	environmentRepository := repository.ProvideEnvironmentRepository(pool)
-	environmentVariablesRepository := repository.ProvideEnvironmentVariablesRepository(pool)
-	environmentPoliciesRepository := repository.ProvideEnvironmentPoliciesRepository(pool)
-	environmentRepositoryCache, err := cache.ProvideEnvironmentRepositoryCache(cacheRepositoryCacheMetricsName, redisCacheSettings, environmentRepository, environmentVariablesRepository, environmentPoliciesRepository)
-	if err != nil {
-		return nil, err
-	}
-	string2 := provideMetricsNameString()
-	accessPolicyRepository := repository.ProvideAccessPolicyFinderSaver(pool)
-	accessPolicyFinderSaver := repository.ProvideAccessPolicyRepository(pool)
-	policyRepositoryCache, err := cache.ProvidePolicyRepositoryCache(string2, redisCacheSettings, accessPolicyRepository, accessPolicyFinderSaver)
-	if err != nil {
-		return nil, err
-	}
+	environmentRepositories := repository.ProvideEnvironmentRepositories(pool)
+	environmentRepository := repository.ProvideCachedEnvironmentRepository(cacheLogger, redisCacheSettings, environmentRepositories)
+	environmentVariablesRepository := repository.ProvideCachedEnvironmentVariablesRepository(cacheLogger, redisCacheSettings, environmentRepositories)
 	reservedEnvironmentsStorage := infrastructure.ProvideReservedEnvironmentsStorage()
 	eventPublisher := provideEventPublisher()
+	accessPolicyRepositories := repository.ProvideAccessPolicyRepositories(pool)
+	accessPolicyFinderSaver := repository.ProvideCachedAccessPolicyFinderSaver(cacheLogger, redisCacheSettings, accessPolicyRepositories)
 	secretKeysConfig := cfg.Keys
 	keySeed, err := provideKeyGenSeed(secretKeysConfig)
 	if err != nil {
 		return nil, err
 	}
 	keyGenerator := infrastructure.ProvideKeyGenerator(keySeed)
-	accessControlService := provideAccessControlService(policyRepositoryCache, keyGenerator)
+	accessControlService := provideAccessControlService(accessPolicyFinderSaver, keyGenerator)
 	bootstrapNotifiersRedis, err := provideNotifiersRedis(redisConfig)
 	if err != nil {
 		return nil, err
@@ -75,9 +69,11 @@ func InitializeApp(cfg config.StartupConfig) (*App, error) {
 	notifierSettings := provideNotifierSettings(bootstrapNotifiersRedis, logger, retry)
 	notifier := infrastructure.ProvideNotifier(notifierSettings)
 	clientKeyGenerator := infrastructure.ProvideClientKeyGenerator(keySeed)
-	clientDependincies := provideClientDependincies(environmentRepositoryCache, policyRepositoryCache, reservedEnvironmentsStorage, eventPublisher, accessControlService, notifier, clientKeyGenerator)
+	clientDependincies := provideClientDependincies(environmentRepository, environmentVariablesRepository, reservedEnvironmentsStorage, eventPublisher, accessControlService, notifier, clientKeyGenerator)
 	client := service.ProvideClient(clientDependincies)
-	managmentDependincies := provideManagmentDependincies(environmentRepositoryCache, policyRepositoryCache, reservedEnvironmentsStorage, eventPublisher, accessControlService)
+	environmentPoliciesRepository := repository.ProvideCachedEnvironmentPoliciesRepository(cacheLogger, redisCacheSettings, environmentRepositories)
+	accessPolicyRepository := repository.ProvideCachedAccessPolicyRepository(cacheLogger, redisCacheSettings, accessPolicyRepositories)
+	managmentDependincies := provideManagmentDependincies(environmentRepository, environmentPoliciesRepository, environmentVariablesRepository, accessPolicyRepository, reservedEnvironmentsStorage, accessControlService, eventPublisher)
 	management := service.ProvideManagement(managmentDependincies)
 	certificateConfig := cfg.Certificate
 	serverSettigns, err := provideServerSettings(logger, certificateConfig)
@@ -107,7 +103,7 @@ type App struct {
 func newApp(
 	grpcServer *grpc.Server,
 	db *pgxpool.Pool,
-	cacheRedis cache.RepositoryCacheRedis, notifiersRedis2 notifiersRedis,
+	cacheRedis repository.RepositoryCacheRedis, notifiersRedis2 notifiersRedis,
 	logger logs.Logger,
 	cfg config.ServerConfig,
 ) *App {

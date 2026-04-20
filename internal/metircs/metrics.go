@@ -8,11 +8,11 @@ import (
 
 var repositoryMetricsLabels = []string{"table", "field", "hit"}
 
-type repositoryMetrics struct {
+type repositoryCacheMetrics struct {
 	counter *prometheus.CounterVec
 }
 
-func NewRepositoryMetrics(name string) (*repositoryMetrics, error) {
+func NewRepositoryCacheMetrics(name string) (*repositoryCacheMetrics, error) {
 	counter := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: name,
@@ -22,11 +22,11 @@ func NewRepositoryMetrics(name string) (*repositoryMetrics, error) {
 	if err := prometheus.Register(counter); err != nil {
 		return nil, err
 	}
-	return &repositoryMetrics{
+	return &repositoryCacheMetrics{
 		counter: counter,
 	}, nil
 }
 
-func (metrics *repositoryMetrics) Inc(table, field string, hit bool) {
+func (metrics *repositoryCacheMetrics) Inc(table, field string, hit bool) {
 	metrics.counter.WithLabelValues(table, field, strconv.FormatBool(hit)).Inc()
 }

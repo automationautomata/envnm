@@ -1,0 +1,60 @@
+x-postgres-env-template: &postgres_env_template
+    POSTGRES_DB: postgres
+    POSTGRES_USER: postgres     
+    POSTGRES_PASSWORD: postgres 
+    
+services:
+  redis:
+    image: redis
+    command: ["redis-server", "--databases", "2"]
+    volumes:
+      - redis-data:/data
+    networks:
+      envmn-net:
+        aliases:
+          - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+  
+  postgres:
+    image: postgres
+    environment:
+      <<: *postgres_env_template
+    networks:
+      envmn-net:
+        aliases:
+          - postgres
+    volumes:
+      - pg_data:/var/lib/postgresql/data 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  envmn:
+    build: .
+    environment:
+      <<: *postgres_env_template
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    networks:
+      - envmn-net
+    depends_on:
+      redis:
+        condition: service_healthy 
+      postgres:
+        condition: service_healthy 
+
+networks:
+  envmn-net:
+
+volumes:
+  pg_data:
+  

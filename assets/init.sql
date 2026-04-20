@@ -32,3 +32,9 @@ CREATE TABLE environments_access_policies (
     changes_allowed boolean NOT NULL DEFAULT false,
     UNIQUE (access_policy_id, environment_id)
 );
+
+CREATE TYPE variable_entry AS (
+  key varchar(255),
+  value text,
+  environment_id uuid
+);
