@@ -12,12 +12,12 @@ import (
 func NewMTLSCredentials(certPath, keyPath, caCertPath string) (credentials.TransportCredentials, error) {
 	serverCert, err := tls.LoadX509KeyPair(certPath, keyPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load client certificate: %w", err)
 	}
 
 	caCert, err := os.ReadFile(caCertPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read CA certificate: %w", err)
 	}
 	caCertPool := x509.NewCertPool()
 	if !caCertPool.AppendCertsFromPEM(caCert) {

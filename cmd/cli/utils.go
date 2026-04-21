@@ -9,7 +9,7 @@ import (
 )
 
 func getGRPCClient() (*gRPCClient, error) {
-	cfg, err := config.Load[config.CLIClientConfig]()
+	cfg, err := config.Load[config.CLIConfig]()
 	if err != nil {
 		return nil, err
 	}

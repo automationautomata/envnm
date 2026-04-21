@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const auth = "authorization"
+const AuthorizationName = "authorization"
 
 func PasswordAuth(passwordEnvVarName string) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
@@ -22,7 +22,7 @@ func PasswordAuth(passwordEnvVarName string) grpc.UnaryServerInterceptor {
 			return ctx, status.Error(codes.Unauthenticated, "missing metadata")
 		}
 
-		auth := md.Get("authorization")
+		auth := md.Get(AuthorizationName)
 		authHeader := auth[0]
 		if !strings.HasPrefix(authHeader, "Basic ") {
 			return ctx, status.Error(codes.Unauthenticated, "invalid authorization scheme")

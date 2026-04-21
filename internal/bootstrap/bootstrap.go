@@ -8,65 +8,107 @@ package bootstrap
 import (
 	"context"
 	"envmn/config"
-	"envmn/internal/api/grpc"
+	grpcapi "envmn/internal/api/grpc"
 	repo "envmn/internal/repository"
 	"envmn/logs"
 	"fmt"
 	"net"
+	"net/http"
 
 	"github.com/google/wire"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/sync/errgroup"
+)
+
+type (
+	httpServerConfig config.ServerConfig
+	gRPCServerConfig config.ServerConfig
 )
 
 type App struct {
-	grpcServer     *grpc.Server
+	grpcServer     *grpcapi.Server
+	httpServer     *http.Server
 	db             *pgxpool.Pool
 	cacheRedis     *redis.Client
 	notifiersRedis *redis.Client
-	logger         logs.Logger
-	serverConf     config.ServerConfig
+	log            logs.Logger
+	grpcServerConf config.ServerConfig
+	httpServerConf config.ServerConfig
 }
 
 func newApp(
-	grpcServer *grpc.Server,
+	grpcServer *grpcapi.Server,
 	db *pgxpool.Pool,
 	cacheRedis repo.RepositoryCacheRedis,
 	notifiersRedis notifiersRedis,
-	logger logs.Logger,
-	cfg config.ServerConfig,
+	log logs.Logger,
+	grpcServerConf gRPCServerConfig,
+	httpServerConf httpServerConfig,
 ) *App {
 	return &App{
 		grpcServer:     grpcServer,
 		db:             db,
 		cacheRedis:     (*redis.Client)(cacheRedis),
 		notifiersRedis: (*redis.Client)(notifiersRedis),
-		logger:         logger,
-		serverConf:     cfg,
+		log:            log,
+		grpcServerConf: config.ServerConfig(grpcServerConf),
+		httpServerConf: config.ServerConfig(httpServerConf),
 	}
 }
 
-func (a *App) shutdown(ctx context.Context) error {
-	a.grpcServer.GracefulStop()
-	a.db.Close()
-	a.cacheRedis.Close()
-	a.notifiersRedis.Close()
+func (app *App) shutdown(ctx context.Context) error {
+	app.grpcServer.GracefulStop()
+	if err := app.httpServer.Shutdown(ctx); err != nil {
+		app.log.Error("HTTP server graceful shutdown failed: %v", logs.Args{"error": err})
+	}
+	app.db.Close()
+	app.cacheRedis.Close()
+	app.notifiersRedis.Close()
 	return nil
 }
 
-func (a *App) Run() func(ctx context.Context) error {
+func (app *App) Run() func(context.Context) error {
 	go func() {
-		addr := fmt.Sprintf("%s:%d", a.serverConf.Host, a.serverConf.Port)
-		lis, err := net.Listen("tcp", addr)
-		if err != nil {
-			a.logger.Error("Failed to listen", logs.Args{"error": err})
-			return
-		}
-		if err := a.grpcServer.Serve(lis); err != nil {
-			a.logger.Error("Failed to serve", logs.Args{"error": err})
+		var g errgroup.Group
+
+		g.Go(app.runGRPC)
+		g.Go(app.runHTTP)
+
+		if err := g.Wait(); err != nil {
+			app.log.Error("Application failed", logs.Args{"error": err})
 		}
 	}()
-	return a.shutdown
+	return app.shutdown
+}
+
+func (app *App) runGRPC() error {
+	addr := app.grpcServerConf.Addr()
+	lis, err := net.Listen("tcp", addr)
+	if err != nil {
+		return fmt.Errorf("failed to listen: %w", err)
+	}
+
+	if err = app.grpcServer.Serve(lis); err != nil {
+		return fmt.Errorf("grpc server failed: %w", err)
+	}
+	return nil
+}
+
+func (app *App) runHTTP() error {
+	addr := app.httpServerConf.Addr()
+
+	app.httpServer = &http.Server{
+		Addr:    addr,
+		Handler: promhttp.Handler(),
+	}
+
+	fmt.Printf("Server prometheus metrics server on %s...\n", addr)
+	if err := app.httpServer.ListenAndServe(); err != nil {
+		return fmt.Errorf("http server failed: %w", err)
+	}
+	return nil
 }
 
 func Build(cfg config.StartupConfig) (*App, error) {
@@ -81,7 +123,6 @@ func Build(cfg config.StartupConfig) (*App, error) {
 func InitializeApp(cfg config.StartupConfig) (*App, error) {
 	wire.Build(
 		wire.FieldsOf(&cfg,
-			"Server",
 			"DB",
 			"Redis",
 			"Cache",
@@ -105,6 +146,8 @@ func InitializeApp(cfg config.StartupConfig) (*App, error) {
 		provideClientDependincies,
 		provideManagmentDependincies,
 		provideGRPCServerSettings,
+		provideHTTPServerConf,
+		provideGRPCServerConf,
 		RepoSet,
 		InfraSet,
 		ServiceSet,

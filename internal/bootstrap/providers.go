@@ -199,3 +199,11 @@ func provideGRPCServerSettings(logger logs.Logger, cfg config.CertificateConfig)
 		PasswordEnvVarName: string(config.PasswordVariableName),
 	}, nil
 }
+
+func provideHTTPServerConf(cfg config.StartupConfig) httpServerConfig {
+	return httpServerConfig(cfg.MetricsServer)
+}
+
+func provideGRPCServerConf(cfg config.StartupConfig) gRPCServerConfig {
+	return gRPCServerConfig(cfg.GRPCServer)
+}

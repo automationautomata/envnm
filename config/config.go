@@ -22,7 +22,7 @@ const (
 )
 
 type CertificateConfig struct {
-	CACertPath string `envPrefix:"CA_CERT_PATH"`
+	CACertPath string `env:"CA_CERT_PATH"`
 	CertPath   string `env:"CERT_PATH"`
 	KeyPath    string `env:"KEY_PATH"`
 }
@@ -30,6 +30,10 @@ type CertificateConfig struct {
 type ServerConfig struct {
 	Host string `env:"HOST"`
 	Port int    `env:"PORT"`
+}
+
+func (cfg *ServerConfig) Addr() string {
+	return fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 }
 
 type RedisConfig struct {
@@ -71,29 +75,32 @@ func (cfg *PostgresDBConfig) DSN() string {
 	)
 }
 
+// //go:generate envdoc -output envdocs/startup-env.md
 type StartupConfig struct {
-	Cache       CacheConfig
-	Redis       RedisConfig
+	Cache         CacheConfig
+	Redis         RedisConfig
+	GRPCServer    ServerConfig      `envPrefix:"ENVMN_"`
+	MetricsServer ServerConfig      `envPrefix:"METRICS_SERVER_"`
+	Certificate   CertificateConfig `envPrefix:"ENVMN_SERVER_"`
+	Notifiers     NotifiersConfig
+	DB            PostgresDBConfig
+	Keys          SecretKeysConfig
+	Auth          AuthConfig
+	LogLevel      LogLevel `env:"LOG_LEVEL"`
+}
+
+// //go:generate envdoc -output envdocs/cli-env.md
+type CLIConfig struct {
+	Auth        AuthConfig
 	Server      ServerConfig      `envPrefix:"ENVMN_"`
-	Certificate CertificateConfig `envPrefix:"SERVER_"`
-	Notifiers   NotifiersConfig
-	DB          PostgresDBConfig
-	Keys        SecretKeysConfig
-	Auth        AuthConfig
-	LogLevel    LogLevel `env:"LOG_LEVEL"`
+	Certificate CertificateConfig `envPrefix:"ENVMN_CLIENT_"`
 }
 
-type CLIClientConfig struct {
-	Server      ServerConfig `envPrefix:"ENVMN_"`
-	Auth        AuthConfig
-	Certificate CertificateConfig `envPrefix:"ENVMN_CLIENT"`
-}
-
-func Load[T StartupConfig | CLIClientConfig]() (T, error) {
+func Load[T StartupConfig | CLIConfig]() (T, error) {
 	return env.ParseAs[T]()
 }
 
-func LoadFromEnvFile[T StartupConfig | CLIClientConfig](path string) (T, error) {
+func LoadFromEnvFile[T StartupConfig | CLIConfig](path string) (T, error) {
 	err := godotenv.Load(path)
 	if err != nil {
 		var t T
