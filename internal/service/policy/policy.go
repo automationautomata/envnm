@@ -30,10 +30,11 @@ func New(
 	accessControl svcs.AccessControl,
 ) *service {
 	return &service{
-		envRepo:       envRepo,
-		policyRepo:    policyRepo,
-		publisher:     publisher,
-		accessControl: accessControl,
+		envRepo:         envRepo,
+		policyRepo:      policyRepo,
+		publisher:       publisher,
+		envPoliciesRepo: envPoliciesRepo,
+		accessControl:   accessControl,
 	}
 }
 

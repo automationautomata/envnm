@@ -3,10 +3,7 @@ package ports
 import (
 	"context"
 	"envmn/internal/domain/environment/entities"
-	"errors"
 )
-
-var ErrAccessPolicyNotFound = errors.New("access policy not found")
 
 type AccessPolicyFinderSaver interface {
 	Save(ctx context.Context, policy *entities.AccessPolicy) error

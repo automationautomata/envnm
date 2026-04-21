@@ -1,0 +1,29 @@
+with-expecter: true
+disable-version-string: true
+issue-845-fix: true
+resolve-type-alias: false
+outpkg: "mocks"
+
+packages:
+  envmn/internal/domain/environment/services/ports:
+    config:
+      all: true
+      dir: internal/domain/environment/services/mocks
+      
+  envmn/internal/service/ports:
+    config:
+      all: true
+      dir: internal/service/mocks 
+
+  envmn/internal/domain/event:
+    interfaces:
+      Notifier:
+        config:
+          dir: internal/service/mocks/
+
+  envmn/internal/domain/environment/services:
+    interfaces:
+      AccessControl:
+        config:
+          dir: internal/service/mocks/
+  

@@ -7,7 +7,6 @@ import (
 	serverrors "envmn/internal/domain/environment/services/errors"
 	"envmn/internal/domain/environment/services/ports"
 
-	"errors"
 	"fmt"
 )
 
@@ -44,10 +43,12 @@ func (s *accessControlService) CanView(ctx context.Context, env *ag.Environment,
 	}
 
 	policy, err := s.policyStor.FindByKey(ctx, *providedKey)
-	if errors.Is(err, ports.ErrAccessPolicyNotFound) {
-		return false, serverrors.ErrInvalidAccessKey
-	} else if err != nil {
+	if err != nil {
 		return false, fmt.Errorf("cannot find access policy: %w", err)
+	}
+
+	if policy == nil {
+		return false, serverrors.ErrInvalidAccessKey
 	}
 
 	return env.HasAccess(policy.ID), nil
@@ -60,10 +61,12 @@ func (s *accessControlService) CanChange(ctx context.Context, env *ag.Environmen
 	}
 
 	policy, err := s.policyStor.FindByKey(ctx, *providedKey)
-	if errors.Is(err, ports.ErrAccessPolicyNotFound) {
-		return false, serverrors.ErrInvalidAccessKey
-	} else if err != nil {
+	if err != nil {
 		return false, fmt.Errorf("cannot find access policy: %w", err)
+	}
+
+	if policy == nil {
+		return false, serverrors.ErrInvalidAccessKey
 	}
 
 	canChange := env.CanBeChangedBy(policy.ID)
