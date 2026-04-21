@@ -4,6 +4,7 @@ import (
 	"context"
 	"envmn/internal/domain/environment/entities"
 	"envmn/internal/repository/postgres/queries"
+	"envmn/internal/service/ports"
 
 	"github.com/google/uuid"
 )
@@ -29,6 +30,21 @@ func (r *accessPoliciesRepository) Save(ctx context.Context, policy *entities.Ac
 	return nil
 }
 
+func (r *accessPoliciesRepository) ListPolicyEnvironments(ctx context.Context, policyID uuid.UUID) ([]*ports.PolicyEnvironment, error) {
+	rows, err := r.conn.ListPolicyEnvironments(ctx, policyID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*ports.PolicyEnvironment, len(rows))
+	for i := range rows {
+		res[i] = &ports.PolicyEnvironment{
+			Name:           rows[i].Name,
+			ChangesAllowed: rows[i].ChangesAllowed,
+		}
+	}
+	return res, nil
+}
 func (r *accessPoliciesRepository) FindByKey(ctx context.Context, key string) (*entities.AccessPolicy, error) {
 	row, err := r.conn.FindPolicyByKey(ctx, key)
 	if err != nil {
@@ -76,11 +92,11 @@ func (r *accessPoliciesRepository) GetEnvironmentPolicies(ctx context.Context, e
 
 	res := make([]*entities.AccessPolicy, len(rows))
 
-	for i, row := range rows {
+	for i := range rows {
 		res[i] = &entities.AccessPolicy{
-			ID:   row.ID,
-			Name: row.Name,
-			Key:  row.Key,
+			ID:   rows[i].ID,
+			Name: rows[i].Name,
+			Key:  rows[i].Key,
 		}
 	}
 

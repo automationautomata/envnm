@@ -14,7 +14,7 @@ type subscription struct {
 	keyGen    ports.ClientKeyGenerator
 	envRepo   ports.EnvironmentRepository
 	storage   ports.ReservedEnvironmentsStorage
-	pub       *event.EventPublisher
+	pub       *event.Publisher
 	notifiler event.Notifier
 }
 
@@ -22,7 +22,7 @@ func New(
 	keyGen ports.ClientKeyGenerator,
 	envRepo ports.EnvironmentRepository,
 	storage ports.ReservedEnvironmentsStorage,
-	pub *event.EventPublisher,
+	pub *event.Publisher,
 	notifiler event.Notifier,
 ) *subscription {
 	return &subscription{

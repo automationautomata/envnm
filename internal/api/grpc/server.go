@@ -8,8 +8,8 @@ import (
 	pb "envmn/pkg/api/proto"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/selector"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -18,36 +18,40 @@ type Server struct {
 	*grpc.Server
 }
 
-type ServerSettigns struct {
+type Settigns struct {
+	PasswordEnvVarName   string
 	Logger               logs.Logger
 	Credentials          credentials.TransportCredentials
 	ManagementAllowedIPs []string
 }
 
-func NewServer(client *service.Client, management *service.Management, settings ServerSettigns) (*Server, error) {
-	opts := []grpc.ServerOption{
-		grpc.Creds(settings.Credentials),
+func NewServer(distr *service.DistributionServices, mng *service.ManagementServices, settings Settigns) *Server {
+	managementServiceName := pb.ManagementService_ServiceDesc.ServiceName
+
+	interceptors := []grpc.UnaryServerInterceptor{
+		recovery.UnaryServerInterceptor(),
+		selector.UnaryServerInterceptor(
+			inc.PasswordAuth(settings.PasswordEnvVarName),
+			selector.MatchFunc(serviceMatcher(managementServiceName)),
+		),
 	}
 
 	if len(settings.ManagementAllowedIPs) != 0 {
-		managementServiceName := pb.ManagementService_ServiceDesc.ServiceName
-
-		opts = append(opts,
-			grpc.ChainUnaryInterceptor(
-				selector.UnaryServerInterceptor(
-					inc.IPWhitelist(settings.ManagementAllowedIPs...),
-					selector.MatchFunc(serviceMatcher(managementServiceName)),
-				),
+		interceptors = append(interceptors,
+			selector.UnaryServerInterceptor(
+				inc.IPWhitelist(settings.ManagementAllowedIPs...),
+				selector.MatchFunc(serviceMatcher(managementServiceName)),
 			),
 		)
 	}
 
-	s := grpc.NewServer(opts...)
-
-	pb.RegisterClientServiceServer(s, newClientServiceServer(client, settings.Logger))
-	pb.RegisterManagementServiceServer(s, newManagementServiceServer(management, settings.Logger))
-
-	return &Server{Server: s}, nil
+	s := grpc.NewServer(
+		grpc.Creds(settings.Credentials),
+		grpc.ChainUnaryInterceptor(interceptors...),
+	)
+	pb.RegisterManagementServiceServer(s, newManagementServiceServer(mng, settings.Logger))
+	pb.RegisterDistributionServiceServer(s, newDistributionServiceServer(distr, settings.Logger))
+	return &Server{Server: s}
 }
 
 func serviceMatcher(name string) func(ctx context.Context, callMeta interceptors.CallMeta) bool {

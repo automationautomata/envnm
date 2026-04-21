@@ -4,7 +4,7 @@ import (
 	"context"
 	ag "envmn/internal/domain/environment/aggregates"
 	"envmn/internal/domain/environment/entities"
-	"envmn/internal/domain/environment/services"
+	envsvc "envmn/internal/domain/environment/services"
 	vo "envmn/internal/domain/environment/valueobjects"
 	"envmn/internal/domain/event"
 	"envmn/internal/service/dto"
@@ -13,20 +13,20 @@ import (
 	"fmt"
 )
 
-type useCase struct {
+type service struct {
 	envRepo       ports.EnvironmentRepository
 	varsRepo      ports.EnvironmentVariablesRepository
-	pub           *event.EventPublisher
-	accessControl *services.AccessControlService
+	pub           *event.Publisher
+	accessControl envsvc.AccessControl
 }
 
 func New(
 	envRepo ports.EnvironmentRepository,
 	varsRepo ports.EnvironmentVariablesRepository,
-	pub *event.EventPublisher,
-	accessControl *services.AccessControlService,
-) *useCase {
-	return &useCase{
+	pub *event.Publisher,
+	accessControl envsvc.AccessControl,
+) *service {
+	return &service{
 		envRepo:       envRepo,
 		varsRepo:      varsRepo,
 		pub:           pub,
@@ -34,8 +34,8 @@ func New(
 	}
 }
 
-func (uc *useCase) GetClientVariables(ctx context.Context, input dto.GetClientVariablesInput) (map[string]string, error) {
-	env, err := uc.getEnvironment(ctx, input.EnvironmentName)
+func (s *service) GetClientVariables(ctx context.Context, input dto.GetClientVariablesInput) (map[string]string, error) {
+	env, err := s.getEnvironment(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}
@@ -48,43 +48,43 @@ func (uc *useCase) GetClientVariables(ctx context.Context, input dto.GetClientVa
 }
 
 // UpdateEnvironmentVariables — обновляет (добавляет/изменяет) переменные
-func (uc *useCase) UpdateEnvironmentVariables(ctx context.Context, input dto.UpdateEnvironmentVariablesInput) error {
-	env, err := uc.getEnvironment(ctx, input.EnvironmentName)
+func (s *service) UpdateEnvironmentVariables(ctx context.Context, input dto.UpdateEnvironmentVariablesInput) error {
+	env, err := s.getEnvironment(ctx, input.EnvironmentName)
 	if err != nil {
 		return err
 	}
 
-	canView, err := uc.accessControl.CanView(ctx, env, input.AccessKey)
+	canView, err := s.accessControl.CanView(ctx, env, input.AccessKey)
 	if err != nil {
-		return fmt.Errorf("cannot check dtoient access to view: %w", err)
+		return fmt.Errorf("cannot check client access to view: %w", err)
 	}
 	if !canView {
 		return errs.ErrAccessDenied
 	}
 
-	return uc.updateVariables(ctx, env, input.Variables)
+	return s.updateVariables(ctx, env, input.Variables)
 }
 
 // UpdateVariablesByClient — обновляет (добавляет/изменяет) переменные
-func (uc *useCase) UpdateVariablesByClient(ctx context.Context, input dto.UpdateVariablesByClientInput) error {
-	env, err := uc.getEnvironment(ctx, input.EnvironmentName)
+func (s *service) UpdateVariablesByClient(ctx context.Context, input dto.UpdateVariablesByClientInput) error {
+	env, err := s.getEnvironment(ctx, input.EnvironmentName)
 	if err != nil {
 		return err
 	}
 
-	canChange, _, err := uc.accessControl.CanChange(ctx, env, input.AccessKey)
+	canChange, err := s.accessControl.CanChange(ctx, env, &input.AccessKey)
 	if err != nil {
-		return fmt.Errorf("cannot check dtoient access to change: %w", err)
+		return fmt.Errorf("cannot check client access to change: %w", err)
 	}
 	if !canChange {
 		return errs.ErrAccessDenied
 	}
-	return uc.updateVariables(ctx, env, input.Variables)
+	return s.updateVariables(ctx, env, input.Variables)
 }
 
 // RemoveVariableFromEnvironment — удаляет переменную из окружения
-func (uc *useCase) RemoveVariableFromEnvironment(ctx context.Context, input dto.RemoveVariableFromEnvironmentInput) error {
-	env, err := uc.getEnvironment(ctx, input.EnvironmentName)
+func (s *service) RemoveVariableFromEnvironment(ctx context.Context, input dto.RemoveVariableFromEnvironmentInput) error {
+	env, err := s.getEnvironment(ctx, input.EnvironmentName)
 	if err != nil {
 		return err
 	}
@@ -94,18 +94,18 @@ func (uc *useCase) RemoveVariableFromEnvironment(ctx context.Context, input dto.
 		return errs.ErrInvalidVariableKey
 	}
 
-	if err := uc.varsRepo.DeleteVariable(ctx, env.ID, key); err != nil {
+	if err := s.varsRepo.DeleteVariable(ctx, env.ID, key); err != nil {
 		return fmt.Errorf("cannot delete variable: %w", err)
 	}
 
 	for _, e := range env.PullEvents() {
-		uc.pub.Publish(ctx, e)
+		s.pub.Publish(ctx, e)
 	}
 	return nil
 }
 
-func (uc *useCase) getEnvironment(ctx context.Context, name string) (*ag.Environment, error) {
-	env, err := uc.envRepo.FindByName(ctx, name)
+func (s *service) getEnvironment(ctx context.Context, name string) (*ag.Environment, error) {
+	env, err := s.envRepo.FindByName(ctx, name)
 	if err != nil {
 		return nil, fmt.Errorf("cannot find environment: %w", err)
 	}
@@ -115,7 +115,7 @@ func (uc *useCase) getEnvironment(ctx context.Context, name string) (*ag.Environ
 	return env, nil
 }
 
-func (uc *useCase) updateVariables(ctx context.Context, env *ag.Environment, variables map[string]string) error {
+func (s *service) updateVariables(ctx context.Context, env *ag.Environment, variables map[string]string) error {
 	envVars := entities.NewVariables()
 	for k, v := range variables {
 		key, err := vo.NewVariableKey(k)
@@ -126,13 +126,13 @@ func (uc *useCase) updateVariables(ctx context.Context, env *ag.Environment, var
 	}
 
 	_, _ = env.UpdateVariables(envVars)
-	if err := uc.varsRepo.UpdateVariables(ctx, env); err != nil {
+	if err := s.varsRepo.UpdateVariables(ctx, env); err != nil {
 		return fmt.Errorf("cannot update variables: %w", err)
 	}
 
 	ctx = context.WithValue(ctx, ports.EnvironmentNameContextKey, env.Name)
 	for _, e := range env.PullEvents() {
-		uc.pub.Publish(ctx, e)
+		s.pub.Publish(ctx, e)
 	}
 	return nil
 }

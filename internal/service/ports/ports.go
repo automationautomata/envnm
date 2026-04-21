@@ -19,15 +19,20 @@ var (
 	ErrEnvironmentWithNameAlreadyExists = errors.New("environment already exists")
 )
 
+type EnvironmentInfoUpdate struct {
+	Name        string
+	Description *string
+}
+
+type PolicyEnvironment struct {
+	Name           string
+	ChangesAllowed bool
+}
+
 type AccessPolicyRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*entities.AccessPolicy, error)
 	FindByName(ctx context.Context, name string) (*entities.AccessPolicy, error)
 	Delete(ctx context.Context, id uuid.UUID) error
-}
-
-type EnvironmentInfoUpdate struct {
-	Name        string
-	Description *string
 }
 
 type EnvironmentRepository interface {
@@ -43,6 +48,7 @@ type EnvironmentPoliciesRepository interface {
 	GetEnvironmentPolicies(ctx context.Context, envID uuid.UUID) ([]*entities.AccessPolicy, error)
 	AddToEnvironment(ctx context.Context, envID uuid.UUID, policy *entities.AccessPolicy) error
 	DeleteFromEnvironment(ctx context.Context, envID uuid.UUID, policyID uuid.UUID) error
+	ListPolicyEnvironments(ctx context.Context, policyID uuid.UUID) ([]*PolicyEnvironment, error)
 }
 
 type EnvironmentVariablesRepository interface {

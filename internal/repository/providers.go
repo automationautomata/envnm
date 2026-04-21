@@ -6,7 +6,7 @@ import (
 	"envmn/internal/repository/postgres"
 	"envmn/internal/service/ports"
 
-	"envmn/internal/domain/environment/services"
+	domainports "envmn/internal/domain/environment/services/ports"
 	"envmn/logs"
 	"time"
 
@@ -21,7 +21,7 @@ type EnvironmentRepositories struct {
 }
 
 type AccessPolicyRepositories struct {
-	services.AccessPolicyFinderSaver
+	domainports.AccessPolicyFinderSaver
 	ports.AccessPolicyRepository
 }
 
@@ -100,7 +100,7 @@ func ProvideCachedAccessPolicyFinderSaver(
 	log CacheLogger,
 	settings cache.RedisCacheSettings,
 	repos AccessPolicyRepositories,
-) services.AccessPolicyFinderSaver {
+) domainports.AccessPolicyFinderSaver {
 	return decorators.NewPolicyRepositoryCache(
 		log,
 		settings,

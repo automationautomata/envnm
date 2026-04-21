@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	grpcerrs "envmn/internal/api/grpc/errors"
 	"envmn/internal/service"
 	"envmn/internal/service/dto"
 	"envmn/logs"
@@ -13,11 +14,11 @@ import (
 
 type managementServiceServer struct {
 	pb.UnimplementedManagementServiceServer
-	svc *service.Management
+	svc *service.ManagementServices
 	log logs.Logger
 }
 
-func newManagementServiceServer(svc *service.Management, log logs.Logger) *managementServiceServer {
+func newManagementServiceServer(svc *service.ManagementServices, log logs.Logger) *managementServiceServer {
 	return &managementServiceServer{svc: svc, log: log}
 }
 
@@ -29,7 +30,7 @@ func (s *managementServiceServer) CreateEnvironment(ctx context.Context, req *pb
 		Description: req.Description,
 		Variables:   req.Variables,
 	})
-	if handlerError, isInternal := toGRPCError(err); handlerError != nil {
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
 			s.log.Error("cannot create environment", logs.Args{"error": err})
 		}
@@ -45,7 +46,7 @@ func (s *managementServiceServer) GetAllEnvironments(ctx context.Context, req *p
 	envs, err := s.svc.GetAllEnvironments(ctx, dto.GetAllEnvironmentsInput{
 		Reserved: req.Reserved,
 	})
-	if handlerError, isInternal := toGRPCError(err); handlerError != nil {
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
 			s.log.Error("cannot get all environments", logs.Args{"error": err})
 		}
@@ -61,7 +62,7 @@ func (s *managementServiceServer) DeleteEnvironment(ctx context.Context, req *pb
 	err := s.svc.DeleteEnvironment(ctx, dto.DeleteEnvironmentInput{
 		Name: req.Name,
 	})
-	if handlerError, isInternal := toGRPCError(err); handlerError != nil {
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
 			s.log.Error("cannot delete environment", logs.Args{"environment": req.Name, "error": err})
 		}
@@ -76,7 +77,7 @@ func (s *managementServiceServer) UpdateEnvironmentInfo(ctx context.Context, req
 		NewName:     req.NewName,
 		Description: req.Description,
 	})
-	if handlerError, isInternal := toGRPCError(err); handlerError != nil {
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
 			s.log.Error("cannot update environment info", logs.Args{"environment": req.OldName, "error": err})
 		}
@@ -93,7 +94,7 @@ func (s *managementServiceServer) CreateAccessPolicy(ctx context.Context, req *p
 		Key:            req.Key,
 		ChangesAllowed: req.ChangesAllowed,
 	})
-	if handlerError, isInternal := toGRPCError(err); handlerError != nil {
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
 			s.log.Error("cannot create access policy", logs.Args{"name": req.Name, "error": err})
 		}
@@ -114,7 +115,7 @@ func (s *managementServiceServer) RemovePolicy(ctx context.Context, req *pb.Remo
 	err = s.svc.RemovePolicy(ctx, dto.RemovePolicyInput{
 		ID: policyID,
 	})
-	if handlerError, isInternal := toGRPCError(err); handlerError != nil {
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
 			s.log.Error("cannot remove policy", logs.Args{"policy_id": req.Id, "error": err})
 		}
@@ -133,7 +134,7 @@ func (s *managementServiceServer) AddPolicyToEnvironment(ctx context.Context, re
 		EnvironmentName: req.EnvironmentName,
 		PolicyID:        policyID,
 	})
-	if handlerError, isInternal := toGRPCError(err); handlerError != nil {
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
 			s.log.Error("cannot add policy to environment",
 				logs.Args{"environment": req.EnvironmentName, "policy_id": req.PolicyId, "error": err})
@@ -153,7 +154,7 @@ func (s *managementServiceServer) RemovePolicyFromEnvironment(ctx context.Contex
 		EnvironmentName: req.EnvironmentName,
 		PolicyID:        policyID,
 	})
-	if handlerError, isInternal := toGRPCError(err); handlerError != nil {
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
 			s.log.Error("cannot remove policy from environment",
 				logs.Args{"environment": req.EnvironmentName, "policy_id": req.PolicyId, "error": err})
@@ -171,7 +172,7 @@ func (s *managementServiceServer) UpdateEnvironmentVariables(ctx context.Context
 		Variables:       req.Variables,
 		AccessKey:       req.AccessKey,
 	})
-	if handlerError, isInternal := toGRPCError(err); handlerError != nil {
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
 			s.log.Error("cannot update environment variables",
 				logs.Args{"environment": req.EnvironmentName, "error": err})
@@ -186,7 +187,7 @@ func (s *managementServiceServer) RemoveVariableFromEnvironment(ctx context.Cont
 		EnvironmentName: req.EnvironmentName,
 		VariableKey:     req.VariableKey,
 	})
-	if handlerError, isInternal := toGRPCError(err); handlerError != nil {
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
 			s.log.Error("cannot remove variable from environment",
 				logs.Args{"environment": req.EnvironmentName, "key": req.VariableKey, "error": err})

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"envmn/internal/domain/environment/services"
+	envsvc "envmn/internal/domain/environment/services"
 	"envmn/internal/domain/event"
 	"envmn/internal/service/environment"
 	"envmn/internal/service/policy"
@@ -16,56 +16,57 @@ type ManagmentDependincies struct {
 	ports.AccessPolicyRepository
 	ports.EnvironmentPoliciesRepository
 	ports.EnvironmentVariablesRepository
-	*event.EventPublisher
-	*services.AccessControlService
+	*event.Publisher
+	envsvc.AccessControl
 }
 
-func ProvideManagement(deps ManagmentDependincies) *Management {
-	return NewManagement(
+func ProvideManagementServices(deps ManagmentDependincies) *ManagementServices {
+	return NewManagementServices(
 		environment.New(
 			deps.EnvironmentRepository,
 			deps.ReservedEnvironmentsStorage,
 			deps.EnvironmentPoliciesRepository,
-			deps.EventPublisher,
+			deps.Publisher,
 		),
 		policy.New(
 			deps.EnvironmentRepository,
 			deps.AccessPolicyRepository,
-			deps.EventPublisher,
-			deps.AccessControlService,
+			deps.EnvironmentPoliciesRepository,
+			deps.Publisher,
+			deps.AccessControl,
 		),
 		variables.New(
 			deps.EnvironmentRepository,
 			deps.EnvironmentVariablesRepository,
-			deps.EventPublisher,
-			deps.AccessControlService,
+			deps.Publisher,
+			deps.AccessControl,
 		),
 	)
 }
 
-type ClientDependincies struct {
+type DistributionDependincies struct {
 	ports.EnvironmentRepository
 	ports.EnvironmentVariablesRepository
-	*event.EventPublisher
-	*services.AccessControlService
+	*event.Publisher
+	envsvc.AccessControl
 	ports.ClientKeyGenerator
 	ports.ReservedEnvironmentsStorage
 	event.Notifier
 }
 
-func ProvideClient(deps ClientDependincies) *Client {
-	return NewClient(
+func ProvideDistributionServices(deps DistributionDependincies) *DistributionServices {
+	return NewDistributionServices(
 		variables.New(
 			deps.EnvironmentRepository,
 			deps.EnvironmentVariablesRepository,
-			deps.EventPublisher,
-			deps.AccessControlService,
+			deps.Publisher,
+			deps.AccessControl,
 		),
 		subscription.New(
 			deps.ClientKeyGenerator,
 			deps.EnvironmentRepository,
 			deps.ReservedEnvironmentsStorage,
-			deps.EventPublisher,
+			deps.Publisher,
 			deps.Notifier,
 		),
 	)

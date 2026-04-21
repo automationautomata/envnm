@@ -1,8 +1,14 @@
 -- name: GetPoliciesByEnv :many
 SELECT p.id, p.name, p.key, ep.changes_allowed
 FROM environments_access_policies ep
-JOIN access_policies p ON p.id = ep.access_policy_id
+INNER JOIN access_policies p ON p.id = ep.access_policy_id
 WHERE ep.environment_id = $1;
+
+-- name: ListPolicyEnvironments :many
+SELECT e.name, ep.changes_allowed
+FROM environments_access_policies ep
+INNER JOIN environments e ON e.id = ep.environment_id
+WHERE ep.access_policy_id = $1;
 
 -- name: FindPolicyByID :one
 SELECT id, name, key 

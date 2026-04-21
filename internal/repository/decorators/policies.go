@@ -3,12 +3,13 @@ package decorators
 import (
 	"context"
 	"envmn/internal/domain/environment/entities"
-	"envmn/internal/domain/environment/services"
 	"envmn/internal/repository/cache"
 	"envmn/internal/service/ports"
 	"envmn/logs"
 	"errors"
 	"fmt"
+
+	domainports "envmn/internal/domain/environment/services/ports"
 
 	"github.com/google/uuid"
 	"golang.org/x/sync/singleflight"
@@ -21,14 +22,14 @@ type policyRepositoryCache struct {
 	group *singleflight.Group
 	log   logs.Logger
 	ports.AccessPolicyRepository
-	services.AccessPolicyFinderSaver
+	domainports.AccessPolicyFinderSaver
 }
 
 func NewPolicyRepositoryCache(
 	log logs.Logger,
 	settings cache.RedisCacheSettings,
 	polisyRepo ports.AccessPolicyRepository,
-	finderSaver services.AccessPolicyFinderSaver,
+	finderSaver domainports.AccessPolicyFinderSaver,
 ) *policyRepositoryCache {
 	return &policyRepositoryCache{
 		cache:                   cache.NewPolicyCache(settings),

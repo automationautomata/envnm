@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/hex"
 	"envmn/config"
+	"envmn/internal/api"
 	"envmn/internal/api/grpc"
 	grpcauth "envmn/internal/api/grpc/auth"
-	"envmn/internal/domain/environment/services"
+	envsvc "envmn/internal/domain/environment/services"
+	"envmn/internal/domain/environment/services/access"
+	domainports "envmn/internal/domain/environment/services/ports"
 	"envmn/internal/domain/event"
 	infra "envmn/internal/infrastructure"
 	metrics "envmn/internal/metircs"
@@ -30,6 +33,22 @@ const (
 	repositoryCacheMetricsName = "cache.db"
 )
 
+var ApiSet = wire.NewSet(
+	api.ProvideGRPCServer,
+)
+
+var ServiceSet = wire.NewSet(
+	service.ProvideDistributionServices,
+	service.ProvideManagementServices,
+)
+
+var InfraSet = wire.NewSet(
+	infra.ProvideReservedEnvironmentsStorage,
+	infra.ProvideClientKeyGenerator,
+	infra.ProvideKeyGenerator,
+	infra.ProvideNotifier,
+)
+
 var RepoSet = wire.NewSet(
 	repo.ProvideRedisCacheSettings,
 	repo.ProvideEnvironmentRepositories,
@@ -43,18 +62,6 @@ var RepoSet = wire.NewSet(
 
 var MetricsSet = wire.NewSet(
 	metrics.ProvideRepositoryCacheMetrics,
-)
-
-var InfraSet = wire.NewSet(
-	infra.ProvideReservedEnvironmentsStorage,
-	infra.ProvideClientKeyGenerator,
-	infra.ProvideKeyGenerator,
-	infra.ProvideNotifier,
-)
-
-var ServiceSet = wire.NewSet(
-	service.ProvideClient,
-	service.ProvideManagement,
 )
 
 func providePostgresDB(cfg config.PostgresDBConfig) (*pgxpool.Pool, error) {
@@ -118,15 +125,15 @@ func provideMetricsName() metrics.RepositoryCacheMetricsName {
 	return repositoryCacheMetricsName
 }
 
-func provideEventPublisher() *event.EventPublisher {
-	return event.NewEventPublisher()
+func providePublisher() *event.Publisher {
+	return event.NewPublisher()
 }
 
 func provideAccessControlService(
-	repo services.AccessPolicyFinderSaver,
-	keyGen services.KeyGenerator,
-) *services.AccessControlService {
-	return services.NewAccessControlService(repo, keyGen)
+	repo domainports.AccessPolicyFinderSaver,
+	keyGen domainports.KeyGenerator,
+) envsvc.AccessControl {
+	return access.New(repo, keyGen)
 }
 
 func provideManagmentDependincies(
@@ -135,8 +142,8 @@ func provideManagmentDependincies(
 	envVarsRepo ports.EnvironmentVariablesRepository,
 	policyRepo ports.AccessPolicyRepository,
 	reservedStorage ports.ReservedEnvironmentsStorage,
-	accessControl *services.AccessControlService,
-	publisher *event.EventPublisher,
+	accessControl envsvc.AccessControl,
+	publisher *event.Publisher,
 ) service.ManagmentDependincies {
 	return service.ManagmentDependincies{
 		EnvironmentRepository:          envRepo,
@@ -144,8 +151,8 @@ func provideManagmentDependincies(
 		AccessPolicyRepository:         policyRepo,
 		EnvironmentPoliciesRepository:  envPolicyRepo,
 		EnvironmentVariablesRepository: envVarsRepo,
-		EventPublisher:                 publisher,
-		AccessControlService:           accessControl,
+		Publisher:                      publisher,
+		AccessControl:                  accessControl,
 	}
 }
 
@@ -153,17 +160,17 @@ func provideClientDependincies(
 	envRepo ports.EnvironmentRepository,
 	envVarsRepo ports.EnvironmentVariablesRepository,
 	reservedStorage ports.ReservedEnvironmentsStorage,
-	publisher *event.EventPublisher,
-	accessControl *services.AccessControlService,
+	publisher *event.Publisher,
+	accessControl envsvc.AccessControl,
 	notifier event.Notifier,
 	keyGen ports.ClientKeyGenerator,
-) service.ClientDependincies {
-	return service.ClientDependincies{
+) service.DistributionDependincies {
+	return service.DistributionDependincies{
 		EnvironmentRepository:          envRepo,
 		ReservedEnvironmentsStorage:    reservedStorage,
 		EnvironmentVariablesRepository: envVarsRepo,
-		EventPublisher:                 publisher,
-		AccessControlService:           accessControl,
+		Publisher:                      publisher,
+		AccessControl:                  accessControl,
 		Notifier:                       notifier,
 		ClientKeyGenerator:             keyGen,
 	}
@@ -181,21 +188,13 @@ func provideNotifierSettings(
 	}
 }
 
-func provideServerSettings(logger logs.Logger, cfg config.CertificateConfig) (grpc.ServerSettigns, error) {
+func provideGRPCServerSettings(logger logs.Logger, cfg config.CertificateConfig) (grpc.Settigns, error) {
 	creds, err := grpcauth.NewMTLSCredentials(cfg.CertPath, cfg.KeyPath, cfg.CACertPath)
 	if err != nil {
-		return grpc.ServerSettigns{}, err
+		return grpc.Settigns{}, err
 	}
-	return grpc.ServerSettigns{
+	return grpc.Settigns{
 		Logger:      logger,
 		Credentials: creds,
 	}, nil
-}
-
-func provideGrpcServer(
-	client *service.Client,
-	management *service.Management,
-	settings grpc.ServerSettigns,
-) (*grpc.Server, error) {
-	return grpc.NewServer(client, management, settings)
 }

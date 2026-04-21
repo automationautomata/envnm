@@ -48,6 +48,10 @@ type RemovePolicyInput struct {
 	ID uuid.UUID
 }
 
+type ListPolicyEnvironments struct {
+	ID uuid.UUID
+}
+
 type AddPolicyToEnvironmentInput struct {
 	EnvironmentName string
 	PolicyID        uuid.UUID
@@ -87,6 +91,11 @@ type EnvironmentDTO struct {
 type PolicyDTO struct {
 	Name           string
 	Key            string
+	ChangesAllowed bool
+}
+
+type PolicyEnvironmentDTO struct {
+	Name           string
 	ChangesAllowed bool
 }
 

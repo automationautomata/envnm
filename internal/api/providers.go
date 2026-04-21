@@ -1,10 +1,14 @@
 package api
 
 import (
-	grpcapi "envmn/internal/api/grpc"
+	"envmn/internal/api/grpc"
 	"envmn/internal/service"
 )
 
-func ProvideGRPCServer(client *service.Client, mgmt *service.Management, settings grpcapi.ServerSettigns) (*grpcapi.Server, error) {
-	return grpcapi.NewServer(client, mgmt, settings)
+func ProvideGRPCServer(
+	distr *service.DistributionServices,
+	mng *service.ManagementServices,
+	settings grpc.Settigns,
+) *grpc.Server {
+	return grpc.NewServer(distr, mng, settings)
 }

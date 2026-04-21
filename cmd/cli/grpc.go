@@ -15,7 +15,6 @@ import (
 
 type gRPCClient struct {
 	Management pb.ManagementServiceClient
-	ClientSvc  pb.ClientServiceClient
 	conn       *grpc.ClientConn
 }
 
@@ -52,7 +51,6 @@ func newGRPCClient(cfg config.CLIClientConfig) (*gRPCClient, error) {
 
 	return &gRPCClient{
 		Management: pb.NewManagementServiceClient(conn),
-		ClientSvc:  pb.NewClientServiceClient(conn),
 		conn:       conn,
 	}, nil
 }

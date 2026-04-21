@@ -35,30 +35,30 @@ type ManageEnvironmentVariables interface {
 	RemoveVariableFromEnvironment(ctx context.Context, input dto.RemoveVariableFromEnvironmentInput) error
 }
 
-type Client struct {
+type DistributionServices struct {
 	ClientVariables
 	ClientSubscribtion
 }
 
-func NewClient(vars ClientVariables, subs ClientSubscribtion) *Client {
-	return &Client{
+func NewDistributionServices(vars ClientVariables, subs ClientSubscribtion) *DistributionServices {
+	return &DistributionServices{
 		ClientVariables:    vars,
 		ClientSubscribtion: subs,
 	}
 }
 
-type Management struct {
+type ManagementServices struct {
 	ManageEnvironment
 	ManageAccessPolicy
 	ManageEnvironmentVariables
 }
 
-func NewManagement(
+func NewManagementServices(
 	env ManageEnvironment,
 	policy ManageAccessPolicy,
 	envVar ManageEnvironmentVariables,
-) *Management {
-	return &Management{
+) *ManagementServices {
+	return &ManagementServices{
 		ManageEnvironment:          env,
 		ManageAccessPolicy:         policy,
 		ManageEnvironmentVariables: envVar,

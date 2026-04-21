@@ -18,14 +18,14 @@ type service struct {
 	envRepo         ports.EnvironmentRepository
 	envPolicisRepo  ports.EnvironmentPoliciesRepository
 	reservedStorage ports.ReservedEnvironmentsStorage
-	publisher       *event.EventPublisher
+	publisher       *event.Publisher
 }
 
 func New(
 	envRepo ports.EnvironmentRepository,
 	reservedStorage ports.ReservedEnvironmentsStorage,
 	envPolicisRepo ports.EnvironmentPoliciesRepository,
-	publisher *event.EventPublisher,
+	publisher *event.Publisher,
 ) *service {
 	return &service{
 		envRepo:         envRepo,
@@ -49,7 +49,7 @@ func (s *service) CreateEnvironment(ctx context.Context, input dto.CreateEnviron
 	}
 
 	descr := ""
-	if input.Description == nil {
+	if input.Description != nil {
 		descr = *input.Description
 	}
 
@@ -102,9 +102,10 @@ func (s *service) GetAllEnvironments(ctx context.Context, input dto.GetAllEnviro
 	for i, env := range envs {
 		_, isReserved := reservedMap[env.Name]
 		res[i] = &dto.EnvironmentDTO{
-			Name:      env.Name,
-			Variables: s.copyVariables(env.Variables()),
-			Reserved:  isReserved,
+			Name:        env.Name,
+			Variables:   s.copyVariables(env.Variables()),
+			Reserved:    isReserved,
+			Description: env.Description,
 		}
 	}
 	return res, nil

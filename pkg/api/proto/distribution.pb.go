@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v7.34.1
-// source: proto/client.proto
+// source: proto/distribution.proto
 
 package proto
 
@@ -32,7 +32,7 @@ type GetClientVariablesRequest struct {
 
 func (x *GetClientVariablesRequest) Reset() {
 	*x = GetClientVariablesRequest{}
-	mi := &file_proto_client_proto_msgTypes[0]
+	mi := &file_proto_distribution_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +44,7 @@ func (x *GetClientVariablesRequest) String() string {
 func (*GetClientVariablesRequest) ProtoMessage() {}
 
 func (x *GetClientVariablesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_client_proto_msgTypes[0]
+	mi := &file_proto_distribution_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,7 +57,7 @@ func (x *GetClientVariablesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetClientVariablesRequest.ProtoReflect.Descriptor instead.
 func (*GetClientVariablesRequest) Descriptor() ([]byte, []int) {
-	return file_proto_client_proto_rawDescGZIP(), []int{0}
+	return file_proto_distribution_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *GetClientVariablesRequest) GetEnvironmentName() string {
@@ -83,7 +83,7 @@ type GetClientVariablesResponse struct {
 
 func (x *GetClientVariablesResponse) Reset() {
 	*x = GetClientVariablesResponse{}
-	mi := &file_proto_client_proto_msgTypes[1]
+	mi := &file_proto_distribution_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -95,7 +95,7 @@ func (x *GetClientVariablesResponse) String() string {
 func (*GetClientVariablesResponse) ProtoMessage() {}
 
 func (x *GetClientVariablesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_client_proto_msgTypes[1]
+	mi := &file_proto_distribution_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -108,7 +108,7 @@ func (x *GetClientVariablesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetClientVariablesResponse.ProtoReflect.Descriptor instead.
 func (*GetClientVariablesResponse) Descriptor() ([]byte, []int) {
-	return file_proto_client_proto_rawDescGZIP(), []int{1}
+	return file_proto_distribution_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GetClientVariablesResponse) GetVariables() map[string]string {
@@ -129,7 +129,7 @@ type UpdateVariablesRequest struct {
 
 func (x *UpdateVariablesRequest) Reset() {
 	*x = UpdateVariablesRequest{}
-	mi := &file_proto_client_proto_msgTypes[2]
+	mi := &file_proto_distribution_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -141,7 +141,7 @@ func (x *UpdateVariablesRequest) String() string {
 func (*UpdateVariablesRequest) ProtoMessage() {}
 
 func (x *UpdateVariablesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_client_proto_msgTypes[2]
+	mi := &file_proto_distribution_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -154,7 +154,7 @@ func (x *UpdateVariablesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateVariablesRequest.ProtoReflect.Descriptor instead.
 func (*UpdateVariablesRequest) Descriptor() ([]byte, []int) {
-	return file_proto_client_proto_rawDescGZIP(), []int{2}
+	return file_proto_distribution_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *UpdateVariablesRequest) GetEnvironmentName() string {
@@ -188,7 +188,7 @@ type SubscribeOnUpdatesRequest struct {
 
 func (x *SubscribeOnUpdatesRequest) Reset() {
 	*x = SubscribeOnUpdatesRequest{}
-	mi := &file_proto_client_proto_msgTypes[3]
+	mi := &file_proto_distribution_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -200,7 +200,7 @@ func (x *SubscribeOnUpdatesRequest) String() string {
 func (*SubscribeOnUpdatesRequest) ProtoMessage() {}
 
 func (x *SubscribeOnUpdatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_client_proto_msgTypes[3]
+	mi := &file_proto_distribution_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -213,7 +213,7 @@ func (x *SubscribeOnUpdatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubscribeOnUpdatesRequest.ProtoReflect.Descriptor instead.
 func (*SubscribeOnUpdatesRequest) Descriptor() ([]byte, []int) {
-	return file_proto_client_proto_rawDescGZIP(), []int{3}
+	return file_proto_distribution_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SubscribeOnUpdatesRequest) GetEnvironmentName() string {
@@ -239,7 +239,7 @@ type SubscribeOnUpdatesResponse struct {
 
 func (x *SubscribeOnUpdatesResponse) Reset() {
 	*x = SubscribeOnUpdatesResponse{}
-	mi := &file_proto_client_proto_msgTypes[4]
+	mi := &file_proto_distribution_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -251,7 +251,7 @@ func (x *SubscribeOnUpdatesResponse) String() string {
 func (*SubscribeOnUpdatesResponse) ProtoMessage() {}
 
 func (x *SubscribeOnUpdatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_client_proto_msgTypes[4]
+	mi := &file_proto_distribution_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -264,7 +264,7 @@ func (x *SubscribeOnUpdatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubscribeOnUpdatesResponse.ProtoReflect.Descriptor instead.
 func (*SubscribeOnUpdatesResponse) Descriptor() ([]byte, []int) {
-	return file_proto_client_proto_rawDescGZIP(), []int{4}
+	return file_proto_distribution_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *SubscribeOnUpdatesResponse) GetKey() string {
@@ -274,11 +274,11 @@ func (x *SubscribeOnUpdatesResponse) GetKey() string {
 	return ""
 }
 
-var File_proto_client_proto protoreflect.FileDescriptor
+var File_proto_distribution_proto protoreflect.FileDescriptor
 
-const file_proto_client_proto_rawDesc = "" +
+const file_proto_distribution_proto_rawDesc = "" +
 	"\n" +
-	"\x12proto/client.proto\x12\x05envmn\x1a\x1bgoogle/protobuf/empty.proto\"y\n" +
+	"\x18proto/distribution.proto\x12\x05envmn\x1a\x1bgoogle/protobuf/empty.proto\"y\n" +
 	"\x19GetClientVariablesRequest\x12)\n" +
 	"\x10environment_name\x18\x01 \x01(\tR\x0fenvironmentName\x12\"\n" +
 	"\n" +
@@ -302,26 +302,26 @@ const file_proto_client_proto_rawDesc = "" +
 	"\n" +
 	"access_key\x18\x02 \x01(\tR\taccessKey\".\n" +
 	"\x1aSubscribeOnUpdatesResponse\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key2\x91\x02\n" +
-	"\rClientService\x12Y\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key2\x97\x02\n" +
+	"\x13DistributionService\x12Y\n" +
 	"\x12GetClientVariables\x12 .envmn.GetClientVariablesRequest\x1a!.envmn.GetClientVariablesResponse\x12H\n" +
 	"\x0fUpdateVariables\x12\x1d.envmn.UpdateVariablesRequest\x1a\x16.google.protobuf.Empty\x12[\n" +
 	"\x12SubscribeOnUpdates\x12 .envmn.SubscribeOnUpdatesRequest\x1a!.envmn.SubscribeOnUpdatesResponse0\x01B\x11Z\x0fapi/proto;protob\x06proto3"
 
 var (
-	file_proto_client_proto_rawDescOnce sync.Once
-	file_proto_client_proto_rawDescData []byte
+	file_proto_distribution_proto_rawDescOnce sync.Once
+	file_proto_distribution_proto_rawDescData []byte
 )
 
-func file_proto_client_proto_rawDescGZIP() []byte {
-	file_proto_client_proto_rawDescOnce.Do(func() {
-		file_proto_client_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_client_proto_rawDesc), len(file_proto_client_proto_rawDesc)))
+func file_proto_distribution_proto_rawDescGZIP() []byte {
+	file_proto_distribution_proto_rawDescOnce.Do(func() {
+		file_proto_distribution_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_distribution_proto_rawDesc), len(file_proto_distribution_proto_rawDesc)))
 	})
-	return file_proto_client_proto_rawDescData
+	return file_proto_distribution_proto_rawDescData
 }
 
-var file_proto_client_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_proto_client_proto_goTypes = []any{
+var file_proto_distribution_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_proto_distribution_proto_goTypes = []any{
 	(*GetClientVariablesRequest)(nil),  // 0: envmn.GetClientVariablesRequest
 	(*GetClientVariablesResponse)(nil), // 1: envmn.GetClientVariablesResponse
 	(*UpdateVariablesRequest)(nil),     // 2: envmn.UpdateVariablesRequest
@@ -331,15 +331,15 @@ var file_proto_client_proto_goTypes = []any{
 	nil,                                // 6: envmn.UpdateVariablesRequest.VariablesEntry
 	(*emptypb.Empty)(nil),              // 7: google.protobuf.Empty
 }
-var file_proto_client_proto_depIdxs = []int32{
+var file_proto_distribution_proto_depIdxs = []int32{
 	5, // 0: envmn.GetClientVariablesResponse.variables:type_name -> envmn.GetClientVariablesResponse.VariablesEntry
 	6, // 1: envmn.UpdateVariablesRequest.variables:type_name -> envmn.UpdateVariablesRequest.VariablesEntry
-	0, // 2: envmn.ClientService.GetClientVariables:input_type -> envmn.GetClientVariablesRequest
-	2, // 3: envmn.ClientService.UpdateVariables:input_type -> envmn.UpdateVariablesRequest
-	3, // 4: envmn.ClientService.SubscribeOnUpdates:input_type -> envmn.SubscribeOnUpdatesRequest
-	1, // 5: envmn.ClientService.GetClientVariables:output_type -> envmn.GetClientVariablesResponse
-	7, // 6: envmn.ClientService.UpdateVariables:output_type -> google.protobuf.Empty
-	4, // 7: envmn.ClientService.SubscribeOnUpdates:output_type -> envmn.SubscribeOnUpdatesResponse
+	0, // 2: envmn.DistributionService.GetClientVariables:input_type -> envmn.GetClientVariablesRequest
+	2, // 3: envmn.DistributionService.UpdateVariables:input_type -> envmn.UpdateVariablesRequest
+	3, // 4: envmn.DistributionService.SubscribeOnUpdates:input_type -> envmn.SubscribeOnUpdatesRequest
+	1, // 5: envmn.DistributionService.GetClientVariables:output_type -> envmn.GetClientVariablesResponse
+	7, // 6: envmn.DistributionService.UpdateVariables:output_type -> google.protobuf.Empty
+	4, // 7: envmn.DistributionService.SubscribeOnUpdates:output_type -> envmn.SubscribeOnUpdatesResponse
 	5, // [5:8] is the sub-list for method output_type
 	2, // [2:5] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -347,27 +347,27 @@ var file_proto_client_proto_depIdxs = []int32{
 	0, // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_proto_client_proto_init() }
-func file_proto_client_proto_init() {
-	if File_proto_client_proto != nil {
+func init() { file_proto_distribution_proto_init() }
+func file_proto_distribution_proto_init() {
+	if File_proto_distribution_proto != nil {
 		return
 	}
-	file_proto_client_proto_msgTypes[0].OneofWrappers = []any{}
+	file_proto_distribution_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_client_proto_rawDesc), len(file_proto_client_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_distribution_proto_rawDesc), len(file_proto_distribution_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_client_proto_goTypes,
-		DependencyIndexes: file_proto_client_proto_depIdxs,
-		MessageInfos:      file_proto_client_proto_msgTypes,
+		GoTypes:           file_proto_distribution_proto_goTypes,
+		DependencyIndexes: file_proto_distribution_proto_depIdxs,
+		MessageInfos:      file_proto_distribution_proto_msgTypes,
 	}.Build()
-	File_proto_client_proto = out.File
-	file_proto_client_proto_goTypes = nil
-	file_proto_client_proto_depIdxs = nil
+	File_proto_distribution_proto = out.File
+	file_proto_distribution_proto_goTypes = nil
+	file_proto_distribution_proto_depIdxs = nil
 }

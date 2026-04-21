@@ -1,4 +1,4 @@
-package grpc
+package errors
 
 import (
 	"errors"
@@ -29,7 +29,7 @@ func (e *grpcHandlerError) GRPCStatus() *status.Status {
 	return st
 }
 
-func toGRPCError(err error) (handlerError *grpcHandlerError, isInternal bool) {
+func ToGRPCError(err error) (handlerError *grpcHandlerError, isInternal bool) {
 	if err == nil {
 		return nil, false
 	}

@@ -128,7 +128,7 @@ func (q *Queries) FindPolicyByName(ctx context.Context, name string) (FindPolicy
 const getPoliciesByEnv = `-- name: GetPoliciesByEnv :many
 SELECT p.id, p.name, p.key, ep.changes_allowed
 FROM environments_access_policies ep
-JOIN access_policies p ON p.id = ep.access_policy_id
+INNER JOIN access_policies p ON p.id = ep.access_policy_id
 WHERE ep.environment_id = $1
 `
 
@@ -154,6 +154,38 @@ func (q *Queries) GetPoliciesByEnv(ctx context.Context, environmentID uuid.UUID)
 			&i.Key,
 			&i.ChangesAllowed,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPolicyEnvironments = `-- name: ListPolicyEnvironments :many
+SELECT e.name, ep.changes_allowed
+FROM environments_access_policies ep
+INNER JOIN environments e ON e.id = ep.environment_id
+WHERE ep.access_policy_id = $1
+`
+
+type ListPolicyEnvironmentsRow struct {
+	Name           string `db:"name"`
+	ChangesAllowed bool   `db:"changes_allowed"`
+}
+
+func (q *Queries) ListPolicyEnvironments(ctx context.Context, accessPolicyID uuid.UUID) ([]ListPolicyEnvironmentsRow, error) {
+	rows, err := q.db.Query(ctx, listPolicyEnvironments, accessPolicyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListPolicyEnvironmentsRow
+	for rows.Next() {
+		var i ListPolicyEnvironmentsRow
+		if err := rows.Scan(&i.Name, &i.ChangesAllowed); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

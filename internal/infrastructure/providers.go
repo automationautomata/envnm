@@ -1,7 +1,7 @@
 package infrastructure
 
 import (
-	domain "envmn/internal/domain/environment/services"
+	domainports "envmn/internal/domain/environment/services/ports"
 	"envmn/internal/domain/event"
 	"envmn/internal/infrastructure/notifiers"
 	"envmn/internal/infrastructure/storages"
@@ -32,6 +32,6 @@ func ProvideClientKeyGenerator(seed KeySeed) ports.ClientKeyGenerator {
 	return NewGenerator(seed)
 }
 
-func ProvideKeyGenerator(seed KeySeed) domain.KeyGenerator {
+func ProvideKeyGenerator(seed KeySeed) domainports.KeyGenerator {
 	return NewGenerator(seed)
 }

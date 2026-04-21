@@ -1,5 +1,6 @@
 .env.cli
 .env.server
-bin
-dev-data
 .vscode
+todo.md
+dev-data
+bin
