@@ -8,6 +8,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type EnvironmentVariableName string
+
 type LogLevel string
 
 const (
@@ -15,6 +17,8 @@ const (
 	Debug LogLevel = "DEBUG"
 	Warn  LogLevel = "WARN"
 	Error LogLevel = "ERROR"
+
+	PasswordVariableName EnvironmentVariableName = "ENVMN_PASSWORD"
 )
 
 type CertificateConfig struct {
@@ -40,6 +44,10 @@ type CacheConfig struct {
 type NotifiersConfig struct {
 	MaxRetries   int           `env:"MAX_RETRIES"`
 	RetryTimeout time.Duration `env:"RETRY_TIMEOUT"`
+}
+
+type AuthConfig struct {
+	Password string `env:"ENVMN_PASSWORD"`
 }
 
 type SecretKeysConfig struct {
@@ -71,12 +79,14 @@ type StartupConfig struct {
 	Notifiers   NotifiersConfig
 	DB          PostgresDBConfig
 	Keys        SecretKeysConfig
+	Auth        AuthConfig
 	LogLevel    LogLevel `env:"LOG_LEVEL"`
 }
 
 type CLIClientConfig struct {
-	Server      ServerConfig      `envPrefix:"ENVMN_"`
-	Certificate CertificateConfig `envPrefix:"ENVMN_"`
+	Server      ServerConfig `envPrefix:"ENVMN_"`
+	Auth        AuthConfig
+	Certificate CertificateConfig `envPrefix:"ENVMN_CLIENT"`
 }
 
 func Load[T StartupConfig | CLIClientConfig]() (T, error) {

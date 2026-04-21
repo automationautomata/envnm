@@ -194,7 +194,8 @@ func provideGRPCServerSettings(logger logs.Logger, cfg config.CertificateConfig)
 		return grpc.Settigns{}, err
 	}
 	return grpc.Settigns{
-		Logger:      logger,
-		Credentials: creds,
+		Logger:             logger,
+		Credentials:        creds,
+		PasswordEnvVarName: string(config.PasswordVariableName),
 	}, nil
 }

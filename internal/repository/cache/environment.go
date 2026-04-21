@@ -108,7 +108,27 @@ func (c *EnvironmentCache) GetEnvironment(ctx context.Context, name string) (*ag
 	env.ID = dto.ID
 	env.LastVariablesUpdate = dto.LastVariablesUpdate
 
+	keys := []string{
+		envKey,
+		c.makeEnvironmentCacheKey(dto.Name),
+		c.makePoliciesCacheKey(env.ID.String()),
+		c.makeVariablesCacheKey(env.ID.String()),
+	}
+	err = c.updateTTL(ctx, keys...)
+	if err != nil {
+		return nil, err
+	}
 	return env, nil
+}
+
+func (c *EnvironmentCache) updateTTL(ctx context.Context, keys ...string) error {
+	_, err := c.rdb.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		for _, k := range keys {
+			pipe.Expire(ctx, k, c.ttl)
+		}
+		return nil
+	})
+	return err
 }
 
 func (c *EnvironmentCache) GetVariables(ctx context.Context, envID uuid.UUID) (entities.Variables, error) {
@@ -136,7 +156,7 @@ func (c *EnvironmentCache) getPolicies(ctx context.Context, envID uuid.UUID) (ma
 		return nil, ErrValueNotFound
 	}
 
-	var policies map[uuid.UUID]bool
+	policies := make(map[uuid.UUID]bool)
 	for k, v := range res {
 		id, err := uuid.Parse(k)
 		if err != nil {
@@ -167,9 +187,14 @@ func (c *EnvironmentCache) Remove(ctx context.Context, envID uuid.UUID) error {
 		envKey,
 		c.makeEnvironmentCacheKey(dto.Name),
 		c.makePoliciesCacheKey(envID.String()),
-		c.makePoliciesCacheKey(envID.String()),
+		c.makeVariablesCacheKey(envID.String()),
 	}
 	return c.rdb.Del(ctx, keys...).Err()
+}
+
+type cmdInfo struct {
+	redis.Cmder
+	key string
 }
 
 func (c *EnvironmentCache) SetEnvironment(ctx context.Context, env *aggregates.Environment) error {
@@ -196,41 +221,45 @@ func (c *EnvironmentCache) SetEnvironment(ctx context.Context, env *aggregates.E
 		policiesData[k.String()] = v
 	}
 
-	_, err := c.rdb.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		err := pipe.Set(ctx, envKeyAlias, envKey, c.ttl).Err()
-		if err != nil {
-			return fmt.Errorf("cannot cache environment: %w", err)
-		}
+	data := map[string]any{
+		envKey:       envData,
+		envKeyAlias:  envKey,
+		policiesKey:  policiesData,
+		variablesKey: variablesData,
+	}
 
-		err = c.hsetWithExpire(ctx, pipe, envKey, envData)
-		if err != nil {
-			return fmt.Errorf("cannot cache environment: %w", err)
-		}
+	cmds := make([]cmdInfo, 0, len(data)+1)
+	_, pipilineErr := c.rdb.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		setCmd := pipe.Set(ctx, envKeyAlias, envKey, c.ttl)
 
-		err = c.hsetWithExpire(ctx, pipe, variablesKey, variablesData)
-		if err != nil {
-			return fmt.Errorf("cannot cache variables: %w", err)
-		}
+		cmds = append(cmds, cmdInfo{setCmd, envKeyAlias})
 
-		err = c.hsetWithExpire(ctx, pipe, policiesKey, policiesData)
-		if err != nil {
-			return fmt.Errorf("cannot cache polcices: %w", err)
+		for k, v := range data {
+			hsetCmd := pipe.HSet(ctx, k, v)
+			expireCmd := pipe.Expire(ctx, k, c.ttl)
+			cmds = append(cmds,
+				cmdInfo{hsetCmd, envKeyAlias},
+				cmdInfo{expireCmd, envKeyAlias},
+			)
 		}
 		return nil
 	})
-	return err
+
+	for _, cmd := range cmds {
+		if err := cmd.Err(); err != nil {
+			cmdErr := fmt.Errorf("cannot cache value with key %q: %w; pipiline error: %w", cmd.key, cmd.Err(), err)
+			if pipilineErr != nil {
+				return fmt.Errorf("%w; %w", cmdErr, pipilineErr)
+			}
+			return cmdErr
+		}
+	}
+	return pipilineErr
 }
 
 func (c *EnvironmentCache) hsetWithExpire(ctx context.Context, cmd redis.StatefulCmdable, key string, data any) error {
-	err := cmd.HSet(ctx, key, data).Err()
-	if err != nil {
-		return fmt.Errorf("hset failed: %w", err)
-	}
-
-	err = cmd.Expire(ctx, key, c.ttl).Err()
-	if err != nil {
-		return fmt.Errorf("cannot set ttl to cached: %w", err)
-	}
+	cmd.HSet(ctx, key, data)
+	cmd.Expire(ctx, key, c.ttl)
 	return nil
 }
 
@@ -243,5 +272,5 @@ func (c *EnvironmentCache) makeVariablesCacheKey(suffix string) string {
 }
 
 func (c *EnvironmentCache) makePoliciesCacheKey(suffix string) string {
-	return c.makeKey(variablesCacheKeyBase, suffix)
+	return c.makeKey(policyCacheKeyBase, suffix)
 }
