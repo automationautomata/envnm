@@ -6,7 +6,6 @@ require (
 	github.com/caarlos0/env/v11 v11.4.0
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
-	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.1.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.3
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/joho/godotenv v1.5.1
@@ -36,7 +35,6 @@ require (
 	github.com/prometheus/procfs v0.20.1 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
-	github.com/wireinject/wire v0.7.1 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	golang.org/x/net v0.53.0 // indirect

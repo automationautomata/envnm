@@ -67,6 +67,6 @@ build:
 up: utils generate install build clean
 
 clean: 
-	go clean -modcache
 	go clean
-	rm -rf $(BUILD_DIR) $(DEV_DATA_DIR)
+	-rm -rf $(BUILD_DIR) $(DEV_DATA_DIR) 
+	-rm -rf $(find -type d -path "*mocks*") || true

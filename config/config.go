@@ -75,7 +75,7 @@ func (cfg *PostgresDBConfig) DSN() string {
 	)
 }
 
-// //go:generate envdoc -output envdocs/startup-env.md
+// //go:generate envdoc -output ./envdocs/startup-env.md
 type StartupConfig struct {
 	Cache         CacheConfig
 	Redis         RedisConfig
@@ -89,7 +89,7 @@ type StartupConfig struct {
 	LogLevel      LogLevel `env:"LOG_LEVEL"`
 }
 
-// //go:generate envdoc -output envdocs/cli-env.md
+// //go:generate envdoc -output ./envdocs/cli-env.md
 type CLIConfig struct {
 	Auth        AuthConfig
 	Server      ServerConfig      `envPrefix:"ENVMN_"`

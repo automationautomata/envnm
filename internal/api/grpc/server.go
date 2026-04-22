@@ -8,6 +8,7 @@ import (
 	pb "envmn/pkg/api/proto"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/selector"
 	"google.golang.org/grpc"
@@ -19,10 +20,10 @@ type Server struct {
 }
 
 type Settigns struct {
-	PasswordEnvVarName   string
-	Logger               logs.Logger
-	Credentials          credentials.TransportCredentials
-	ManagementAllowedIPs []string
+	PasswordEnvVarName          string
+	Logger                      logs.Logger
+	Credentials                 credentials.TransportCredentials
+	ManagementServiceAllowedIPs []string
 }
 
 func NewServer(distr *service.DistributionServices, mng *service.ManagementServices, settings Settigns) *Server {
@@ -30,16 +31,17 @@ func NewServer(distr *service.DistributionServices, mng *service.ManagementServi
 
 	interceptors := []grpc.UnaryServerInterceptor{
 		recovery.UnaryServerInterceptor(),
+		logging.UnaryServerInterceptor(&logDecorator{settings.Logger}),
 		selector.UnaryServerInterceptor(
 			inc.PasswordAuth(settings.PasswordEnvVarName),
 			selector.MatchFunc(serviceMatcher(managementServiceName)),
 		),
 	}
 
-	if len(settings.ManagementAllowedIPs) != 0 {
+	if len(settings.ManagementServiceAllowedIPs) != 0 {
 		interceptors = append(interceptors,
 			selector.UnaryServerInterceptor(
-				inc.IPWhitelist(settings.ManagementAllowedIPs...),
+				inc.IPWhitelist(settings.ManagementServiceAllowedIPs...),
 				selector.MatchFunc(serviceMatcher(managementServiceName)),
 			),
 		)

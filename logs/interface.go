@@ -1,6 +1,6 @@
 package logs
 
-type Args map[string]any
+type Args map[any]any
 
 type Logger interface {
 	Child(name string) Logger
