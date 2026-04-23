@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"envmn/config"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -56,7 +57,7 @@ func optionalString(s string) *string {
 func markFlagsRequired(cmd *cobra.Command, names ...string) {
 	for _, flagName := range names {
 		if err := cmd.MarkFlagRequired(flagName); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 }
