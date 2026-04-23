@@ -23,6 +23,9 @@ type CreateEnvironmentInput struct {
 	Description *string
 	Variables   map[string]string
 }
+type GetEnvironmentInput struct {
+	Name string
+}
 
 type GetAllEnvironmentsInput struct {
 	Reserved bool

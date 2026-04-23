@@ -64,6 +64,28 @@ func (s *service) CreateEnvironment(ctx context.Context, input dto.CreateEnviron
 	return env.ID, nil
 }
 
+func (s *service) GetEnvironment(ctx context.Context, input dto.GetEnvironmentInput) (*dto.EnvironmentDTO, error) {
+	env, err := s.getEnvironment(ctx, input.Name)
+	if err != nil {
+		return nil, nil
+	}
+	dto := &dto.EnvironmentDTO{
+		Name:        env.Name,
+		Variables:   s.copyVariables(env.Variables()),
+		Description: env.Description,
+		Reserved:    false,
+	}
+
+	reserved, err := s.reservedStorage.List(ctx)
+	for _, name := range reserved {
+		if env.Name == name {
+			dto.Reserved = true
+			break
+		}
+	}
+	return dto, nil
+}
+
 // GetAllEnvironments — получить спимок всех окружений, если reserved = true, то только те, которые используются клиентами
 func (s *service) GetAllEnvironments(ctx context.Context, input dto.GetAllEnvironmentsInput) ([]*dto.EnvironmentDTO, error) {
 	reserved, err := s.reservedStorage.List(ctx)

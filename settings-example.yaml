@@ -1,0 +1,24 @@
+environmrnts-prefix: ""
+policies-prefix: ""
+
+environmrnts:
+  prod:
+    file: path/to/file
+
+  dev:
+    variables:
+      VAR1: 1
+      VAR2: 2
+
+  db:
+    variables:
+      HOST: postgres
+      PORT: 5432
+      DB: postgres
+      PASSWORD: postgres
+
+policies:
+  app1:
+    db: false
+    prod: true
+    dev: true

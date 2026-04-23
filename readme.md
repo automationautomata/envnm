@@ -78,6 +78,63 @@ graph TD
 	DIST <--> CACHE_MN
 ```
 
+### Запуск
+
+1. **С помощью Docker Compose:**
+   ```bash
+   docker-compose up
+   ```
+
+2. **Локально:**
+   ```bash
+   make build
+   make run
+   ```
+
+### CLI
+
+```bash
+# Создание окружения
+envmn environment create --name dev --description "Development environment"
+
+# Добавление переменной
+envmn variables set --env dev --key DATABASE_URL --value "postgres://..."
+
+# Создание политики доступа
+envmn policy create dev-read-only
+
+# Процесс настройки можно упростить, посто использовав envmn setting
+envmn setting path/to/file.yaml
+```
+
+Пример файла с настройками:
+```yaml
+environmrnts-prefix: "app1" # Префиксы задавать не обязательно  
+policies-prefix: "" 
+
+environmrnts:
+  prod:
+    file: path/to/file
+
+  dev:
+    variables:
+      VAR1: 1
+      VAR2: 2
+
+  db:
+    variables:
+      HOST: postgres
+      PORT: 5432
+      DB: postgres
+      PASSWORD: postgres
+
+policies:
+  app1:
+    db: false
+    prod: true
+    dev: true
+```
+
 ### Структура конфигурации
 
 Конфигурация через переменные окружения:
@@ -101,36 +158,3 @@ CA_CERT_PATH=/path/to/ca.crt
 CERT_PATH=/path/to/server.crt
 KEY_PATH=/path/to/server.key
 ```
-
-### Запуск
-
-1. **С помощью Docker Compose:**
-   ```bash
-   docker-compose up
-   ```
-
-2. **Локально:**
-   ```bash
-   make build
-   make run
-   ```
-
-### Настройка CLI
-
-```bash
-# Создание окружения
-envmn environment create --name dev --description "Development environment"
-
-# Добавление переменной
-envmn variables set --env dev --key DATABASE_URL --value "postgres://..."
-
-# Создание политики доступа
-envmn policy create --name read-only --
-```
-
-### API
-
-gRPC сервисы:
-- **ManagementService**: для администрирования (требует x-admin-password)
-- **ClientService**: для клиентского доступа (требует аутентификации)
-

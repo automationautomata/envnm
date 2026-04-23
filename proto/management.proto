@@ -10,6 +10,7 @@ service ManagementService {
   // all requests require x-admin-password metadata
   rpc CreateEnvironment(CreateEnvironmentRequest) returns (CreateEnvironmentResponse);
   rpc GetAllEnvironments(GetAllEnvironmentsRequest) returns (GetAllEnvironmentsResponse);
+  rpc GetEnvironment(GetEnvironmentRequest) returns (GetEnvironmentResponse);
   rpc DeleteEnvironment(DeleteEnvironmentRequest) returns (google.protobuf.Empty);
   rpc UpdateEnvironmentInfo(UpdateEnvironmentInfoRequest) returns (google.protobuf.Empty);
 
@@ -52,6 +53,14 @@ message GetAllEnvironmentsRequest {
 
 message GetAllEnvironmentsResponse {
   repeated Environment environments = 1;
+}
+
+message GetEnvironmentRequest {
+  string name = 1;
+}
+
+message GetEnvironmentResponse {
+  Environment environment = 1;
 }
 
 message DeleteEnvironmentRequest {

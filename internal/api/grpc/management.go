@@ -42,6 +42,26 @@ func (s *managementServiceServer) CreateEnvironment(ctx context.Context, req *pb
 	}, nil
 }
 
+func (s *managementServiceServer) GetEnvironment(ctx context.Context, req *pb.GetEnvironmentRequest) (*pb.GetEnvironmentResponse, error) {
+	env, err := s.svc.GetEnvironment(ctx, dto.GetEnvironmentInput{
+		Name: req.Name,
+	})
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
+		if isInternal {
+			s.log.Error("cannot update environment info", logs.Args{"environment_name": req.Name, "error": err})
+		}
+		return nil, handlerError
+	}
+	return &pb.GetEnvironmentResponse{
+		Environment: &pb.Environment{
+			Name:        env.Name,
+			Description: env.Description,
+			Variables:   env.Variables,
+			Reserved:    env.Reserved,
+		},
+	}, nil
+}
+
 func (s *managementServiceServer) GetAllEnvironments(ctx context.Context, req *pb.GetAllEnvironmentsRequest) (*pb.GetAllEnvironmentsResponse, error) {
 	envs, err := s.svc.GetAllEnvironments(ctx, dto.GetAllEnvironmentsInput{
 		Reserved: req.Reserved,
@@ -64,7 +84,7 @@ func (s *managementServiceServer) DeleteEnvironment(ctx context.Context, req *pb
 	})
 	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
-			s.log.Error("cannot delete environment", logs.Args{"environment": req.Name, "error": err})
+			s.log.Error("cannot delete environment", logs.Args{"environment_name": req.Name, "error": err})
 		}
 		return nil, handlerError
 	}
@@ -121,6 +141,7 @@ func (s *managementServiceServer) GetPolicyByName(ctx context.Context, req *pb.G
 		Key:  policy.Key,
 	}, nil
 }
+
 func (s *managementServiceServer) ListPolicyEnvironments(ctx context.Context, req *pb.ListPolicyEnvironmentsRequest) (*pb.ListPolicyEnvironmentsResponse, error) {
 	policyID, err := uuid.Parse(req.PolicyId)
 	if err != nil {

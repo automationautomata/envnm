@@ -42,12 +42,14 @@ func policyCmd() *cobra.Command {
 }
 
 func newCreatePolicyCmd() *cobra.Command {
-	var name string
-
-	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Create access policy",
+	return &cobra.Command{
+		Use:        "create",
+		Short:      "Create access policy",
+		Args:       cobra.ExactArgs(1),
+		ArgAliases: []string{"policy name"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			name := args[0]
+
 			client, err := getGRPCClient()
 			if err != nil {
 				return err
@@ -63,20 +65,16 @@ func newCreatePolicyCmd() *cobra.Command {
 			return nil
 		},
 	}
-
-	cmd.Flags().StringVar(&name, "name", "", "Policy name")
-
-	markFlagsRequired(cmd, "name")
-	return cmd
 }
 
 func newFindPolicyCmd() *cobra.Command {
-	var name string
-
-	cmd := &cobra.Command{
-		Use:   "find",
-		Short: "find policy by policy",
+	return &cobra.Command{
+		Use:        "find",
+		Short:      "find policy by policy",
+		Args:       cobra.ExactArgs(1),
+		ArgAliases: []string{"policy name"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			name := args[0]
 			client, err := getGRPCClient()
 			if err != nil {
 				return err
@@ -92,19 +90,16 @@ func newFindPolicyCmd() *cobra.Command {
 			return nil
 		},
 	}
-
-	cmd.Flags().StringVar(&name, "name", "", "Policy name")
-	markFlagsRequired(cmd, "name")
-	return cmd
 }
 
 func newGetAllEnvironmentsCmd() *cobra.Command {
-	var idStr string
-
-	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "get all policy environments",
+	return &cobra.Command{
+		Use:        "list",
+		Short:      "get all policy environments",
+		Args:       cobra.ExactArgs(1),
+		ArgAliases: []string{"policy name"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			idStr := args[0]
 			client, err := getGRPCClient()
 			if err != nil {
 				return err
@@ -133,19 +128,16 @@ func newGetAllEnvironmentsCmd() *cobra.Command {
 			return nil
 		},
 	}
-
-	cmd.Flags().StringVar(&idStr, "id", "", "Policy id")
-	markFlagsRequired(cmd, "id")
-	return cmd
 }
 
 func newRemovePolicyCmd() *cobra.Command {
-	var idStr string
-
-	cmd := &cobra.Command{
-		Use:   "delete",
-		Short: "Remove access policy",
+	return &cobra.Command{
+		Use:        "delete",
+		Short:      "Remove access policy",
+		Args:       cobra.ExactArgs(1),
+		ArgAliases: []string{"policy id"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			idStr := args[0]
 			client, err := getGRPCClient()
 			if err != nil {
 				return err
@@ -157,21 +149,18 @@ func newRemovePolicyCmd() *cobra.Command {
 			return err
 		},
 	}
-
-	cmd.Flags().StringVar(&idStr, "id", "", "Policy ID")
-	markFlagsRequired(cmd, "id")
-	return cmd
 }
 
 func newAddPolicyToEnvCmd() *cobra.Command {
-	var (
-		envName, idStr string
-		premission     policyPremission
-	)
+	var premission policyPremission
+
 	cmd := &cobra.Command{
-		Use:   "attach",
-		Short: "Add policy to environment",
+		Use:        "attach",
+		Short:      "Add policy to environment",
+		Args:       cobra.ExactArgs(2),
+		ArgAliases: []string{"environment name", "policy id"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			envName, idStr := args[0], args[1]
 			client, err := getGRPCClient()
 			if err != nil {
 				return err
@@ -190,20 +179,18 @@ func newAddPolicyToEnvCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&envName, "env", "", "Environment name")
-	cmd.Flags().StringVar(&idStr, "id", "", "Policy ID")
 	cmd.Flags().Var(&premission, "premission", "policy premission")
-	markFlagsRequired(cmd, "env", "id", "premission")
 	return cmd
 }
 
 func newRemovePolicyFromEnvCmd() *cobra.Command {
-	var envName, idStr string
-
-	cmd := &cobra.Command{
-		Use:   "detach",
-		Short: "Remove policy from environment",
+	return &cobra.Command{
+		Use:        "detach",
+		Short:      "Remove policy from environment",
+		Args:       cobra.ExactArgs(2),
+		ArgAliases: []string{"environment name", "policy id"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			envName, idStr := args[0], args[1]
 			client, err := getGRPCClient()
 			if err != nil {
 				return err
@@ -218,9 +205,4 @@ func newRemovePolicyFromEnvCmd() *cobra.Command {
 			return err
 		},
 	}
-
-	cmd.Flags().StringVar(&envName, "env", "", "Environment name")
-	cmd.Flags().StringVar(&idStr, "id", "", "Policy ID")
-	markFlagsRequired(cmd, "env", "id")
-	return cmd
 }

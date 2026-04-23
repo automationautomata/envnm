@@ -334,6 +334,94 @@ func (x *GetAllEnvironmentsResponse) GetEnvironments() []*Environment {
 	return nil
 }
 
+type GetEnvironmentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEnvironmentRequest) Reset() {
+	*x = GetEnvironmentRequest{}
+	mi := &file_proto_management_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEnvironmentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEnvironmentRequest) ProtoMessage() {}
+
+func (x *GetEnvironmentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_management_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEnvironmentRequest.ProtoReflect.Descriptor instead.
+func (*GetEnvironmentRequest) Descriptor() ([]byte, []int) {
+	return file_proto_management_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetEnvironmentRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type GetEnvironmentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Environment   *Environment           `protobuf:"bytes,1,opt,name=environment,proto3" json:"environment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEnvironmentResponse) Reset() {
+	*x = GetEnvironmentResponse{}
+	mi := &file_proto_management_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEnvironmentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEnvironmentResponse) ProtoMessage() {}
+
+func (x *GetEnvironmentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_management_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEnvironmentResponse.ProtoReflect.Descriptor instead.
+func (*GetEnvironmentResponse) Descriptor() ([]byte, []int) {
+	return file_proto_management_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetEnvironmentResponse) GetEnvironment() *Environment {
+	if x != nil {
+		return x.Environment
+	}
+	return nil
+}
+
 type DeleteEnvironmentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -343,7 +431,7 @@ type DeleteEnvironmentRequest struct {
 
 func (x *DeleteEnvironmentRequest) Reset() {
 	*x = DeleteEnvironmentRequest{}
-	mi := &file_proto_management_proto_msgTypes[6]
+	mi := &file_proto_management_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -355,7 +443,7 @@ func (x *DeleteEnvironmentRequest) String() string {
 func (*DeleteEnvironmentRequest) ProtoMessage() {}
 
 func (x *DeleteEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[6]
+	mi := &file_proto_management_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -368,7 +456,7 @@ func (x *DeleteEnvironmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{6}
+	return file_proto_management_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteEnvironmentRequest) GetName() string {
@@ -389,7 +477,7 @@ type UpdateEnvironmentInfoRequest struct {
 
 func (x *UpdateEnvironmentInfoRequest) Reset() {
 	*x = UpdateEnvironmentInfoRequest{}
-	mi := &file_proto_management_proto_msgTypes[7]
+	mi := &file_proto_management_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -401,7 +489,7 @@ func (x *UpdateEnvironmentInfoRequest) String() string {
 func (*UpdateEnvironmentInfoRequest) ProtoMessage() {}
 
 func (x *UpdateEnvironmentInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[7]
+	mi := &file_proto_management_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -414,7 +502,7 @@ func (x *UpdateEnvironmentInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEnvironmentInfoRequest.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironmentInfoRequest) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{7}
+	return file_proto_management_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateEnvironmentInfoRequest) GetOldName() string {
@@ -448,7 +536,7 @@ type CreateAccessPolicyRequest struct {
 
 func (x *CreateAccessPolicyRequest) Reset() {
 	*x = CreateAccessPolicyRequest{}
-	mi := &file_proto_management_proto_msgTypes[8]
+	mi := &file_proto_management_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -460,7 +548,7 @@ func (x *CreateAccessPolicyRequest) String() string {
 func (*CreateAccessPolicyRequest) ProtoMessage() {}
 
 func (x *CreateAccessPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[8]
+	mi := &file_proto_management_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -473,7 +561,7 @@ func (x *CreateAccessPolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAccessPolicyRequest.ProtoReflect.Descriptor instead.
 func (*CreateAccessPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{8}
+	return file_proto_management_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *CreateAccessPolicyRequest) GetName() string {
@@ -499,7 +587,7 @@ type CreateAccessPolicyResponse struct {
 
 func (x *CreateAccessPolicyResponse) Reset() {
 	*x = CreateAccessPolicyResponse{}
-	mi := &file_proto_management_proto_msgTypes[9]
+	mi := &file_proto_management_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -511,7 +599,7 @@ func (x *CreateAccessPolicyResponse) String() string {
 func (*CreateAccessPolicyResponse) ProtoMessage() {}
 
 func (x *CreateAccessPolicyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[9]
+	mi := &file_proto_management_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -524,7 +612,7 @@ func (x *CreateAccessPolicyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAccessPolicyResponse.ProtoReflect.Descriptor instead.
 func (*CreateAccessPolicyResponse) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{9}
+	return file_proto_management_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CreateAccessPolicyResponse) GetId() string {
@@ -543,7 +631,7 @@ type ListPolicyEnvironmentsRequest struct {
 
 func (x *ListPolicyEnvironmentsRequest) Reset() {
 	*x = ListPolicyEnvironmentsRequest{}
-	mi := &file_proto_management_proto_msgTypes[10]
+	mi := &file_proto_management_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -555,7 +643,7 @@ func (x *ListPolicyEnvironmentsRequest) String() string {
 func (*ListPolicyEnvironmentsRequest) ProtoMessage() {}
 
 func (x *ListPolicyEnvironmentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[10]
+	mi := &file_proto_management_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -568,7 +656,7 @@ func (x *ListPolicyEnvironmentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPolicyEnvironmentsRequest.ProtoReflect.Descriptor instead.
 func (*ListPolicyEnvironmentsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{10}
+	return file_proto_management_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListPolicyEnvironmentsRequest) GetPolicyId() string {
@@ -587,7 +675,7 @@ type ListPolicyEnvironmentsResponse struct {
 
 func (x *ListPolicyEnvironmentsResponse) Reset() {
 	*x = ListPolicyEnvironmentsResponse{}
-	mi := &file_proto_management_proto_msgTypes[11]
+	mi := &file_proto_management_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -599,7 +687,7 @@ func (x *ListPolicyEnvironmentsResponse) String() string {
 func (*ListPolicyEnvironmentsResponse) ProtoMessage() {}
 
 func (x *ListPolicyEnvironmentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[11]
+	mi := &file_proto_management_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -612,7 +700,7 @@ func (x *ListPolicyEnvironmentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPolicyEnvironmentsResponse.ProtoReflect.Descriptor instead.
 func (*ListPolicyEnvironmentsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{11}
+	return file_proto_management_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListPolicyEnvironmentsResponse) GetItems() []*PolicyEnvironmentsItem {
@@ -631,7 +719,7 @@ type GetPolicyByNameRequest struct {
 
 func (x *GetPolicyByNameRequest) Reset() {
 	*x = GetPolicyByNameRequest{}
-	mi := &file_proto_management_proto_msgTypes[12]
+	mi := &file_proto_management_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -643,7 +731,7 @@ func (x *GetPolicyByNameRequest) String() string {
 func (*GetPolicyByNameRequest) ProtoMessage() {}
 
 func (x *GetPolicyByNameRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[12]
+	mi := &file_proto_management_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -656,7 +744,7 @@ func (x *GetPolicyByNameRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPolicyByNameRequest.ProtoReflect.Descriptor instead.
 func (*GetPolicyByNameRequest) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{12}
+	return file_proto_management_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetPolicyByNameRequest) GetName() string {
@@ -677,7 +765,7 @@ type GetPolicyByNameResponse struct {
 
 func (x *GetPolicyByNameResponse) Reset() {
 	*x = GetPolicyByNameResponse{}
-	mi := &file_proto_management_proto_msgTypes[13]
+	mi := &file_proto_management_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -689,7 +777,7 @@ func (x *GetPolicyByNameResponse) String() string {
 func (*GetPolicyByNameResponse) ProtoMessage() {}
 
 func (x *GetPolicyByNameResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[13]
+	mi := &file_proto_management_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -702,7 +790,7 @@ func (x *GetPolicyByNameResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPolicyByNameResponse.ProtoReflect.Descriptor instead.
 func (*GetPolicyByNameResponse) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{13}
+	return file_proto_management_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetPolicyByNameResponse) GetId() string {
@@ -735,7 +823,7 @@ type RemovePolicyRequest struct {
 
 func (x *RemovePolicyRequest) Reset() {
 	*x = RemovePolicyRequest{}
-	mi := &file_proto_management_proto_msgTypes[14]
+	mi := &file_proto_management_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -747,7 +835,7 @@ func (x *RemovePolicyRequest) String() string {
 func (*RemovePolicyRequest) ProtoMessage() {}
 
 func (x *RemovePolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[14]
+	mi := &file_proto_management_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -760,7 +848,7 @@ func (x *RemovePolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemovePolicyRequest.ProtoReflect.Descriptor instead.
 func (*RemovePolicyRequest) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{14}
+	return file_proto_management_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *RemovePolicyRequest) GetId() string {
@@ -781,7 +869,7 @@ type AddPolicyToEnvironmentRequest struct {
 
 func (x *AddPolicyToEnvironmentRequest) Reset() {
 	*x = AddPolicyToEnvironmentRequest{}
-	mi := &file_proto_management_proto_msgTypes[15]
+	mi := &file_proto_management_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -793,7 +881,7 @@ func (x *AddPolicyToEnvironmentRequest) String() string {
 func (*AddPolicyToEnvironmentRequest) ProtoMessage() {}
 
 func (x *AddPolicyToEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[15]
+	mi := &file_proto_management_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -806,7 +894,7 @@ func (x *AddPolicyToEnvironmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddPolicyToEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*AddPolicyToEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{15}
+	return file_proto_management_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *AddPolicyToEnvironmentRequest) GetEnvironmentName() string {
@@ -840,7 +928,7 @@ type RemovePolicyFromEnvironmentRequest struct {
 
 func (x *RemovePolicyFromEnvironmentRequest) Reset() {
 	*x = RemovePolicyFromEnvironmentRequest{}
-	mi := &file_proto_management_proto_msgTypes[16]
+	mi := &file_proto_management_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -852,7 +940,7 @@ func (x *RemovePolicyFromEnvironmentRequest) String() string {
 func (*RemovePolicyFromEnvironmentRequest) ProtoMessage() {}
 
 func (x *RemovePolicyFromEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[16]
+	mi := &file_proto_management_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -865,7 +953,7 @@ func (x *RemovePolicyFromEnvironmentRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use RemovePolicyFromEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*RemovePolicyFromEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{16}
+	return file_proto_management_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *RemovePolicyFromEnvironmentRequest) GetEnvironmentName() string {
@@ -893,7 +981,7 @@ type UpdateEnvironmentVariablesRequest struct {
 
 func (x *UpdateEnvironmentVariablesRequest) Reset() {
 	*x = UpdateEnvironmentVariablesRequest{}
-	mi := &file_proto_management_proto_msgTypes[17]
+	mi := &file_proto_management_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -905,7 +993,7 @@ func (x *UpdateEnvironmentVariablesRequest) String() string {
 func (*UpdateEnvironmentVariablesRequest) ProtoMessage() {}
 
 func (x *UpdateEnvironmentVariablesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[17]
+	mi := &file_proto_management_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -918,7 +1006,7 @@ func (x *UpdateEnvironmentVariablesRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use UpdateEnvironmentVariablesRequest.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironmentVariablesRequest) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{17}
+	return file_proto_management_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *UpdateEnvironmentVariablesRequest) GetEnvironmentName() string {
@@ -952,7 +1040,7 @@ type RemoveVariableFromEnvironmentRequest struct {
 
 func (x *RemoveVariableFromEnvironmentRequest) Reset() {
 	*x = RemoveVariableFromEnvironmentRequest{}
-	mi := &file_proto_management_proto_msgTypes[18]
+	mi := &file_proto_management_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -964,7 +1052,7 @@ func (x *RemoveVariableFromEnvironmentRequest) String() string {
 func (*RemoveVariableFromEnvironmentRequest) ProtoMessage() {}
 
 func (x *RemoveVariableFromEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_management_proto_msgTypes[18]
+	mi := &file_proto_management_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -977,7 +1065,7 @@ func (x *RemoveVariableFromEnvironmentRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use RemoveVariableFromEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*RemoveVariableFromEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_proto_management_proto_rawDescGZIP(), []int{18}
+	return file_proto_management_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *RemoveVariableFromEnvironmentRequest) GetEnvironmentName() string {
@@ -1023,7 +1111,11 @@ const file_proto_management_proto_rawDesc = "" +
 	"\x19GetAllEnvironmentsRequest\x12\x1a\n" +
 	"\breserved\x18\x01 \x01(\bR\breserved\"_\n" +
 	"\x1aGetAllEnvironmentsResponse\x12A\n" +
-	"\fenvironments\x18\x01 \x03(\v2\x1d.envmn.management.EnvironmentR\fenvironments\".\n" +
+	"\fenvironments\x18\x01 \x03(\v2\x1d.envmn.management.EnvironmentR\fenvironments\"+\n" +
+	"\x15GetEnvironmentRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"Y\n" +
+	"\x16GetEnvironmentResponse\x12?\n" +
+	"\venvironment\x18\x01 \x01(\v2\x1d.envmn.management.EnvironmentR\venvironment\".\n" +
 	"\x18DeleteEnvironmentRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"\x9d\x01\n" +
 	"\x1cUpdateEnvironmentInfoRequest\x12\x19\n" +
@@ -1067,10 +1159,12 @@ const file_proto_management_proto_rawDesc = "" +
 	"\v_access_key\"t\n" +
 	"$RemoveVariableFromEnvironmentRequest\x12)\n" +
 	"\x10environment_name\x18\x01 \x01(\tR\x0fenvironmentName\x12!\n" +
-	"\fvariable_key\x18\x02 \x01(\tR\vvariableKey2\xfd\t\n" +
+	"\fvariable_key\x18\x02 \x01(\tR\vvariableKey2\xe2\n" +
+	"\n" +
 	"\x11ManagementService\x12l\n" +
 	"\x11CreateEnvironment\x12*.envmn.management.CreateEnvironmentRequest\x1a+.envmn.management.CreateEnvironmentResponse\x12o\n" +
-	"\x12GetAllEnvironments\x12+.envmn.management.GetAllEnvironmentsRequest\x1a,.envmn.management.GetAllEnvironmentsResponse\x12W\n" +
+	"\x12GetAllEnvironments\x12+.envmn.management.GetAllEnvironmentsRequest\x1a,.envmn.management.GetAllEnvironmentsResponse\x12c\n" +
+	"\x0eGetEnvironment\x12'.envmn.management.GetEnvironmentRequest\x1a(.envmn.management.GetEnvironmentResponse\x12W\n" +
 	"\x11DeleteEnvironment\x12*.envmn.management.DeleteEnvironmentRequest\x1a\x16.google.protobuf.Empty\x12_\n" +
 	"\x15UpdateEnvironmentInfo\x12..envmn.management.UpdateEnvironmentInfoRequest\x1a\x16.google.protobuf.Empty\x12o\n" +
 	"\x12CreateAccessPolicy\x12+.envmn.management.CreateAccessPolicyRequest\x1a,.envmn.management.CreateAccessPolicyResponse\x12{\n" +
@@ -1094,7 +1188,7 @@ func file_proto_management_proto_rawDescGZIP() []byte {
 	return file_proto_management_proto_rawDescData
 }
 
-var file_proto_management_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_proto_management_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_proto_management_proto_goTypes = []any{
 	(*Environment)(nil),                          // 0: envmn.management.Environment
 	(*PolicyEnvironmentsItem)(nil),               // 1: envmn.management.PolicyEnvironmentsItem
@@ -1102,59 +1196,64 @@ var file_proto_management_proto_goTypes = []any{
 	(*CreateEnvironmentResponse)(nil),            // 3: envmn.management.CreateEnvironmentResponse
 	(*GetAllEnvironmentsRequest)(nil),            // 4: envmn.management.GetAllEnvironmentsRequest
 	(*GetAllEnvironmentsResponse)(nil),           // 5: envmn.management.GetAllEnvironmentsResponse
-	(*DeleteEnvironmentRequest)(nil),             // 6: envmn.management.DeleteEnvironmentRequest
-	(*UpdateEnvironmentInfoRequest)(nil),         // 7: envmn.management.UpdateEnvironmentInfoRequest
-	(*CreateAccessPolicyRequest)(nil),            // 8: envmn.management.CreateAccessPolicyRequest
-	(*CreateAccessPolicyResponse)(nil),           // 9: envmn.management.CreateAccessPolicyResponse
-	(*ListPolicyEnvironmentsRequest)(nil),        // 10: envmn.management.ListPolicyEnvironmentsRequest
-	(*ListPolicyEnvironmentsResponse)(nil),       // 11: envmn.management.ListPolicyEnvironmentsResponse
-	(*GetPolicyByNameRequest)(nil),               // 12: envmn.management.GetPolicyByNameRequest
-	(*GetPolicyByNameResponse)(nil),              // 13: envmn.management.GetPolicyByNameResponse
-	(*RemovePolicyRequest)(nil),                  // 14: envmn.management.RemovePolicyRequest
-	(*AddPolicyToEnvironmentRequest)(nil),        // 15: envmn.management.AddPolicyToEnvironmentRequest
-	(*RemovePolicyFromEnvironmentRequest)(nil),   // 16: envmn.management.RemovePolicyFromEnvironmentRequest
-	(*UpdateEnvironmentVariablesRequest)(nil),    // 17: envmn.management.UpdateEnvironmentVariablesRequest
-	(*RemoveVariableFromEnvironmentRequest)(nil), // 18: envmn.management.RemoveVariableFromEnvironmentRequest
-	nil,                   // 19: envmn.management.Environment.VariablesEntry
-	nil,                   // 20: envmn.management.CreateEnvironmentRequest.VariablesEntry
-	nil,                   // 21: envmn.management.UpdateEnvironmentVariablesRequest.VariablesEntry
-	(*emptypb.Empty)(nil), // 22: google.protobuf.Empty
+	(*GetEnvironmentRequest)(nil),                // 6: envmn.management.GetEnvironmentRequest
+	(*GetEnvironmentResponse)(nil),               // 7: envmn.management.GetEnvironmentResponse
+	(*DeleteEnvironmentRequest)(nil),             // 8: envmn.management.DeleteEnvironmentRequest
+	(*UpdateEnvironmentInfoRequest)(nil),         // 9: envmn.management.UpdateEnvironmentInfoRequest
+	(*CreateAccessPolicyRequest)(nil),            // 10: envmn.management.CreateAccessPolicyRequest
+	(*CreateAccessPolicyResponse)(nil),           // 11: envmn.management.CreateAccessPolicyResponse
+	(*ListPolicyEnvironmentsRequest)(nil),        // 12: envmn.management.ListPolicyEnvironmentsRequest
+	(*ListPolicyEnvironmentsResponse)(nil),       // 13: envmn.management.ListPolicyEnvironmentsResponse
+	(*GetPolicyByNameRequest)(nil),               // 14: envmn.management.GetPolicyByNameRequest
+	(*GetPolicyByNameResponse)(nil),              // 15: envmn.management.GetPolicyByNameResponse
+	(*RemovePolicyRequest)(nil),                  // 16: envmn.management.RemovePolicyRequest
+	(*AddPolicyToEnvironmentRequest)(nil),        // 17: envmn.management.AddPolicyToEnvironmentRequest
+	(*RemovePolicyFromEnvironmentRequest)(nil),   // 18: envmn.management.RemovePolicyFromEnvironmentRequest
+	(*UpdateEnvironmentVariablesRequest)(nil),    // 19: envmn.management.UpdateEnvironmentVariablesRequest
+	(*RemoveVariableFromEnvironmentRequest)(nil), // 20: envmn.management.RemoveVariableFromEnvironmentRequest
+	nil,                   // 21: envmn.management.Environment.VariablesEntry
+	nil,                   // 22: envmn.management.CreateEnvironmentRequest.VariablesEntry
+	nil,                   // 23: envmn.management.UpdateEnvironmentVariablesRequest.VariablesEntry
+	(*emptypb.Empty)(nil), // 24: google.protobuf.Empty
 }
 var file_proto_management_proto_depIdxs = []int32{
-	19, // 0: envmn.management.Environment.variables:type_name -> envmn.management.Environment.VariablesEntry
-	20, // 1: envmn.management.CreateEnvironmentRequest.variables:type_name -> envmn.management.CreateEnvironmentRequest.VariablesEntry
+	21, // 0: envmn.management.Environment.variables:type_name -> envmn.management.Environment.VariablesEntry
+	22, // 1: envmn.management.CreateEnvironmentRequest.variables:type_name -> envmn.management.CreateEnvironmentRequest.VariablesEntry
 	0,  // 2: envmn.management.GetAllEnvironmentsResponse.environments:type_name -> envmn.management.Environment
-	1,  // 3: envmn.management.ListPolicyEnvironmentsResponse.items:type_name -> envmn.management.PolicyEnvironmentsItem
-	21, // 4: envmn.management.UpdateEnvironmentVariablesRequest.variables:type_name -> envmn.management.UpdateEnvironmentVariablesRequest.VariablesEntry
-	2,  // 5: envmn.management.ManagementService.CreateEnvironment:input_type -> envmn.management.CreateEnvironmentRequest
-	4,  // 6: envmn.management.ManagementService.GetAllEnvironments:input_type -> envmn.management.GetAllEnvironmentsRequest
-	6,  // 7: envmn.management.ManagementService.DeleteEnvironment:input_type -> envmn.management.DeleteEnvironmentRequest
-	7,  // 8: envmn.management.ManagementService.UpdateEnvironmentInfo:input_type -> envmn.management.UpdateEnvironmentInfoRequest
-	8,  // 9: envmn.management.ManagementService.CreateAccessPolicy:input_type -> envmn.management.CreateAccessPolicyRequest
-	10, // 10: envmn.management.ManagementService.ListPolicyEnvironments:input_type -> envmn.management.ListPolicyEnvironmentsRequest
-	12, // 11: envmn.management.ManagementService.GetPolicyByName:input_type -> envmn.management.GetPolicyByNameRequest
-	14, // 12: envmn.management.ManagementService.RemovePolicy:input_type -> envmn.management.RemovePolicyRequest
-	15, // 13: envmn.management.ManagementService.AddPolicyToEnvironment:input_type -> envmn.management.AddPolicyToEnvironmentRequest
-	16, // 14: envmn.management.ManagementService.RemovePolicyFromEnvironment:input_type -> envmn.management.RemovePolicyFromEnvironmentRequest
-	17, // 15: envmn.management.ManagementService.UpdateEnvironmentVariables:input_type -> envmn.management.UpdateEnvironmentVariablesRequest
-	18, // 16: envmn.management.ManagementService.RemoveVariableFromEnvironment:input_type -> envmn.management.RemoveVariableFromEnvironmentRequest
-	3,  // 17: envmn.management.ManagementService.CreateEnvironment:output_type -> envmn.management.CreateEnvironmentResponse
-	5,  // 18: envmn.management.ManagementService.GetAllEnvironments:output_type -> envmn.management.GetAllEnvironmentsResponse
-	22, // 19: envmn.management.ManagementService.DeleteEnvironment:output_type -> google.protobuf.Empty
-	22, // 20: envmn.management.ManagementService.UpdateEnvironmentInfo:output_type -> google.protobuf.Empty
-	9,  // 21: envmn.management.ManagementService.CreateAccessPolicy:output_type -> envmn.management.CreateAccessPolicyResponse
-	11, // 22: envmn.management.ManagementService.ListPolicyEnvironments:output_type -> envmn.management.ListPolicyEnvironmentsResponse
-	13, // 23: envmn.management.ManagementService.GetPolicyByName:output_type -> envmn.management.GetPolicyByNameResponse
-	22, // 24: envmn.management.ManagementService.RemovePolicy:output_type -> google.protobuf.Empty
-	22, // 25: envmn.management.ManagementService.AddPolicyToEnvironment:output_type -> google.protobuf.Empty
-	22, // 26: envmn.management.ManagementService.RemovePolicyFromEnvironment:output_type -> google.protobuf.Empty
-	22, // 27: envmn.management.ManagementService.UpdateEnvironmentVariables:output_type -> google.protobuf.Empty
-	22, // 28: envmn.management.ManagementService.RemoveVariableFromEnvironment:output_type -> google.protobuf.Empty
-	17, // [17:29] is the sub-list for method output_type
-	5,  // [5:17] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	0,  // 3: envmn.management.GetEnvironmentResponse.environment:type_name -> envmn.management.Environment
+	1,  // 4: envmn.management.ListPolicyEnvironmentsResponse.items:type_name -> envmn.management.PolicyEnvironmentsItem
+	23, // 5: envmn.management.UpdateEnvironmentVariablesRequest.variables:type_name -> envmn.management.UpdateEnvironmentVariablesRequest.VariablesEntry
+	2,  // 6: envmn.management.ManagementService.CreateEnvironment:input_type -> envmn.management.CreateEnvironmentRequest
+	4,  // 7: envmn.management.ManagementService.GetAllEnvironments:input_type -> envmn.management.GetAllEnvironmentsRequest
+	6,  // 8: envmn.management.ManagementService.GetEnvironment:input_type -> envmn.management.GetEnvironmentRequest
+	8,  // 9: envmn.management.ManagementService.DeleteEnvironment:input_type -> envmn.management.DeleteEnvironmentRequest
+	9,  // 10: envmn.management.ManagementService.UpdateEnvironmentInfo:input_type -> envmn.management.UpdateEnvironmentInfoRequest
+	10, // 11: envmn.management.ManagementService.CreateAccessPolicy:input_type -> envmn.management.CreateAccessPolicyRequest
+	12, // 12: envmn.management.ManagementService.ListPolicyEnvironments:input_type -> envmn.management.ListPolicyEnvironmentsRequest
+	14, // 13: envmn.management.ManagementService.GetPolicyByName:input_type -> envmn.management.GetPolicyByNameRequest
+	16, // 14: envmn.management.ManagementService.RemovePolicy:input_type -> envmn.management.RemovePolicyRequest
+	17, // 15: envmn.management.ManagementService.AddPolicyToEnvironment:input_type -> envmn.management.AddPolicyToEnvironmentRequest
+	18, // 16: envmn.management.ManagementService.RemovePolicyFromEnvironment:input_type -> envmn.management.RemovePolicyFromEnvironmentRequest
+	19, // 17: envmn.management.ManagementService.UpdateEnvironmentVariables:input_type -> envmn.management.UpdateEnvironmentVariablesRequest
+	20, // 18: envmn.management.ManagementService.RemoveVariableFromEnvironment:input_type -> envmn.management.RemoveVariableFromEnvironmentRequest
+	3,  // 19: envmn.management.ManagementService.CreateEnvironment:output_type -> envmn.management.CreateEnvironmentResponse
+	5,  // 20: envmn.management.ManagementService.GetAllEnvironments:output_type -> envmn.management.GetAllEnvironmentsResponse
+	7,  // 21: envmn.management.ManagementService.GetEnvironment:output_type -> envmn.management.GetEnvironmentResponse
+	24, // 22: envmn.management.ManagementService.DeleteEnvironment:output_type -> google.protobuf.Empty
+	24, // 23: envmn.management.ManagementService.UpdateEnvironmentInfo:output_type -> google.protobuf.Empty
+	11, // 24: envmn.management.ManagementService.CreateAccessPolicy:output_type -> envmn.management.CreateAccessPolicyResponse
+	13, // 25: envmn.management.ManagementService.ListPolicyEnvironments:output_type -> envmn.management.ListPolicyEnvironmentsResponse
+	15, // 26: envmn.management.ManagementService.GetPolicyByName:output_type -> envmn.management.GetPolicyByNameResponse
+	24, // 27: envmn.management.ManagementService.RemovePolicy:output_type -> google.protobuf.Empty
+	24, // 28: envmn.management.ManagementService.AddPolicyToEnvironment:output_type -> google.protobuf.Empty
+	24, // 29: envmn.management.ManagementService.RemovePolicyFromEnvironment:output_type -> google.protobuf.Empty
+	24, // 30: envmn.management.ManagementService.UpdateEnvironmentVariables:output_type -> google.protobuf.Empty
+	24, // 31: envmn.management.ManagementService.RemoveVariableFromEnvironment:output_type -> google.protobuf.Empty
+	19, // [19:32] is the sub-list for method output_type
+	6,  // [6:19] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_proto_management_proto_init() }
@@ -1163,15 +1262,15 @@ func file_proto_management_proto_init() {
 		return
 	}
 	file_proto_management_proto_msgTypes[2].OneofWrappers = []any{}
-	file_proto_management_proto_msgTypes[7].OneofWrappers = []any{}
-	file_proto_management_proto_msgTypes[17].OneofWrappers = []any{}
+	file_proto_management_proto_msgTypes[9].OneofWrappers = []any{}
+	file_proto_management_proto_msgTypes[19].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_management_proto_rawDesc), len(file_proto_management_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   22,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

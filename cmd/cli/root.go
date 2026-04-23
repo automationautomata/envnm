@@ -11,9 +11,6 @@ func newRootCmd() *cobra.Command {
 		Use:   "envmn",
 		Short: "Environment Manager CLI",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if envFilePath == "" {
-				return nil
-			}
 			if err := godotenv.Load(envFilePath); err != nil {
 				return err
 			}
@@ -21,7 +18,6 @@ func newRootCmd() *cobra.Command {
 		},
 	}
 	root.Flags().StringVar(&envFilePath, "env-file", "", "path to .env")
-
 	{
 		root.AddCommand(envCmd())
 		root.AddCommand(policyCmd())

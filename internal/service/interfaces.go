@@ -18,6 +18,7 @@ type ClientSubscribtion interface {
 
 type ManageEnvironment interface {
 	CreateEnvironment(ctx context.Context, input dto.CreateEnvironmentInput) (uuid.UUID, error)
+	GetEnvironment(ctx context.Context, input dto.GetEnvironmentInput) (*dto.EnvironmentDTO, error)
 	GetAllEnvironments(ctx context.Context, input dto.GetAllEnvironmentsInput) ([]*dto.EnvironmentDTO, error)
 	DeleteEnvironment(ctx context.Context, input dto.DeleteEnvironmentInput) error
 	UpdateEnvironmentInfo(ctx context.Context, input dto.UpdateEnvironmentInfoInput) error

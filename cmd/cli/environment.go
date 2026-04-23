@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"path/filepath"
+	"strings"
 
 	pb "envmn/pkg/api/proto"
 
@@ -44,6 +47,14 @@ func newCreateEnvCmd() *cobra.Command {
 				}
 			}
 
+			if name == "" && file == "" {
+				return fmt.Errorf("name is required")
+			}
+			if name == "" {
+				abspath, _ := filepath.Abs(file)
+				name = fmt.Sprintf("environment:%s", abspath)
+			}
+
 			req := &pb.CreateEnvironmentRequest{
 				Name:        name,
 				Description: optionalString(desc),
@@ -62,7 +73,6 @@ func newCreateEnvCmd() *cobra.Command {
 	cmd.Flags().StringVar(&desc, "desc", "", "Description")
 	cmd.Flags().StringToStringVar(&vars, "var", nil, "Variables (KEY=VALUE)")
 	cmd.Flags().StringVar(&file, "file", "", ".env file")
-	markFlagsRequired(cmd, "name")
 	return cmd
 }
 
@@ -86,8 +96,16 @@ func newListEnvCmd() *cobra.Command {
 				return err
 			}
 
+			breakline := strings.Repeat("-", 25)
 			for _, e := range resp.Environments {
-				cmd.Printf("%-20s reserved=%v  %s\n", e.Name, e.Reserved, e.Description)
+				cmd.Printf(
+					"name: %s\ndescription: %s\nreserved:%t\nvariables:\n",
+					e.Name, e.Description, e.Reserved,
+				)
+				for k, v := range e.Variables {
+					cmd.Printf("\t%s: %s\n", k, v)
+				}
+				cmd.Printf("\n\n%s\n\n", breakline)
 			}
 			return nil
 		},
@@ -97,11 +115,13 @@ func newListEnvCmd() *cobra.Command {
 }
 
 func newDeleteEnvCmd() *cobra.Command {
-	var name string
-	cmd := &cobra.Command{
-		Use:   "delete",
-		Short: "Delete environment",
+	return &cobra.Command{
+		Use:        "delete",
+		Short:      "Delete environment",
+		Args:       cobra.ExactArgs(1),
+		ArgAliases: []string{"environment name"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			name := args[0]
 			client, err := getGRPCClient()
 			if err != nil {
 				return err
@@ -113,9 +133,6 @@ func newDeleteEnvCmd() *cobra.Command {
 			return err
 		},
 	}
-	cmd.Flags().StringVar(&name, "name", "", "Environment name")
-	markFlagsRequired(cmd, "name")
-	return cmd
 }
 
 func newUpdateEnvCmd() *cobra.Command {

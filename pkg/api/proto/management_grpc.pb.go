@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ManagementService_CreateEnvironment_FullMethodName             = "/envmn.management.ManagementService/CreateEnvironment"
 	ManagementService_GetAllEnvironments_FullMethodName            = "/envmn.management.ManagementService/GetAllEnvironments"
+	ManagementService_GetEnvironment_FullMethodName                = "/envmn.management.ManagementService/GetEnvironment"
 	ManagementService_DeleteEnvironment_FullMethodName             = "/envmn.management.ManagementService/DeleteEnvironment"
 	ManagementService_UpdateEnvironmentInfo_FullMethodName         = "/envmn.management.ManagementService/UpdateEnvironmentInfo"
 	ManagementService_CreateAccessPolicy_FullMethodName            = "/envmn.management.ManagementService/CreateAccessPolicy"
@@ -41,6 +42,7 @@ type ManagementServiceClient interface {
 	// all requests require x-admin-password metadata
 	CreateEnvironment(ctx context.Context, in *CreateEnvironmentRequest, opts ...grpc.CallOption) (*CreateEnvironmentResponse, error)
 	GetAllEnvironments(ctx context.Context, in *GetAllEnvironmentsRequest, opts ...grpc.CallOption) (*GetAllEnvironmentsResponse, error)
+	GetEnvironment(ctx context.Context, in *GetEnvironmentRequest, opts ...grpc.CallOption) (*GetEnvironmentResponse, error)
 	DeleteEnvironment(ctx context.Context, in *DeleteEnvironmentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateEnvironmentInfo(ctx context.Context, in *UpdateEnvironmentInfoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateAccessPolicy(ctx context.Context, in *CreateAccessPolicyRequest, opts ...grpc.CallOption) (*CreateAccessPolicyResponse, error)
@@ -75,6 +77,16 @@ func (c *managementServiceClient) GetAllEnvironments(ctx context.Context, in *Ge
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAllEnvironmentsResponse)
 	err := c.cc.Invoke(ctx, ManagementService_GetAllEnvironments_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) GetEnvironment(ctx context.Context, in *GetEnvironmentRequest, opts ...grpc.CallOption) (*GetEnvironmentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEnvironmentResponse)
+	err := c.cc.Invoke(ctx, ManagementService_GetEnvironment_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -188,6 +200,7 @@ type ManagementServiceServer interface {
 	// all requests require x-admin-password metadata
 	CreateEnvironment(context.Context, *CreateEnvironmentRequest) (*CreateEnvironmentResponse, error)
 	GetAllEnvironments(context.Context, *GetAllEnvironmentsRequest) (*GetAllEnvironmentsResponse, error)
+	GetEnvironment(context.Context, *GetEnvironmentRequest) (*GetEnvironmentResponse, error)
 	DeleteEnvironment(context.Context, *DeleteEnvironmentRequest) (*emptypb.Empty, error)
 	UpdateEnvironmentInfo(context.Context, *UpdateEnvironmentInfoRequest) (*emptypb.Empty, error)
 	CreateAccessPolicy(context.Context, *CreateAccessPolicyRequest) (*CreateAccessPolicyResponse, error)
@@ -213,6 +226,9 @@ func (UnimplementedManagementServiceServer) CreateEnvironment(context.Context, *
 }
 func (UnimplementedManagementServiceServer) GetAllEnvironments(context.Context, *GetAllEnvironmentsRequest) (*GetAllEnvironmentsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAllEnvironments not implemented")
+}
+func (UnimplementedManagementServiceServer) GetEnvironment(context.Context, *GetEnvironmentRequest) (*GetEnvironmentResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEnvironment not implemented")
 }
 func (UnimplementedManagementServiceServer) DeleteEnvironment(context.Context, *DeleteEnvironmentRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteEnvironment not implemented")
@@ -297,6 +313,24 @@ func _ManagementService_GetAllEnvironments_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ManagementServiceServer).GetAllEnvironments(ctx, req.(*GetAllEnvironmentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_GetEnvironment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEnvironmentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).GetEnvironment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_GetEnvironment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).GetEnvironment(ctx, req.(*GetEnvironmentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -495,6 +529,10 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllEnvironments",
 			Handler:    _ManagementService_GetAllEnvironments_Handler,
+		},
+		{
+			MethodName: "GetEnvironment",
+			Handler:    _ManagementService_GetEnvironment_Handler,
 		},
 		{
 			MethodName: "DeleteEnvironment",
