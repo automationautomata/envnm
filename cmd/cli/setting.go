@@ -15,10 +15,9 @@ import (
 
 func newSettingsCmd() *cobra.Command {
 	root := &cobra.Command{
-		Use:        "setting",
-		Short:      "setting server from file",
-		Args:       cobra.ExactArgs(1),
-		ArgAliases: []string{"path to settings file"},
+		Use:   "setting [file]",
+		Short: "setting server from file",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			settings, err := config.LoadSettings(args[0])
 			if err != nil {

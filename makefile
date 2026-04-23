@@ -6,7 +6,7 @@ SCRIPTS_DIR			=	scripts
 CLI_BIN_FILE		=	$(BUILD_DIR)/cli
 SERVER_BIN_FILE		=	$(BUILD_DIR)/server 
 WIRE_GEN_FILE		= 	internal/bootstrap
-SERVICE_MOCKS_DIR	= internal/service/mocks
+SERVICE_MOCKS_DIR	= 	internal/service/mocks
 TEST_DIRS			= 	./internal/service/environment/ \
 						./internal/service/variables/ \
  						./internal/service/policy/ \
@@ -39,13 +39,15 @@ mocks:
 wire:
 	cd $(WIRE_GEN_FILE) && wire gen
 
-generate: install-utils proto sqlc wire mocks
+generate: install-utils proto sqlc wire
 
 test: mocks
 	go test $(TEST_DIRS)
 
-test-cover: 
-	go test --cover $(TEST_DIRS)
+test-coverage: mocks
+	go test -coverpkg=$(echo $(TEST_DIRS) | tr ' ' ',') -coverprofile=coverage.out $(TEST_DIRS)
+	go tool cover -func=coverage.out | grep total
+
 
 certs:
 	-mkdir $(DEV_CERTS_DIR)
@@ -55,16 +57,14 @@ install:
 	go mod download
 
 build-server:
-	go build -o $(SERVER_BIN_FILE) cmd/server
+	go build -o $(SERVER_BIN_FILE) ./cmd/server
 
 build-cli:
-	go build -o $(CLI_BIN_FILE) cmd/cli
+	go build -o $(CLI_BIN_FILE) ./cmd/cli
 
-build:
-	build-server
-	build-cli
+build: build-server build-cli
 
-up: utils generate install build clean
+up: install generate build clean
 
 clean: 
 	go clean

@@ -1,4 +1,4 @@
-package variables
+package variables_test
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 	"envmn/internal/service/dto"
 	errs "envmn/internal/service/errors"
 	"envmn/internal/service/mocks"
+	"envmn/internal/service/variables"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -80,7 +81,7 @@ func TestService_GetClientVariables(t *testing.T) {
 			publisher := &event.Publisher{}
 			expectedErr := tc.mockSetup(envRepo)
 
-			service := New(envRepo, varsRepo, publisher, accessControl)
+			service := variables.New(envRepo, varsRepo, publisher, accessControl)
 
 			vars, err := service.GetClientVariables(context.Background(), tc.input)
 
@@ -176,7 +177,7 @@ func TestService_UpdateEnvironmentVariables(t *testing.T) {
 			publisher := &event.Publisher{}
 			expectedErr := tc.mockSetup(envRepo, varsRepo, accessControl)
 
-			service := New(envRepo, varsRepo, publisher, accessControl)
+			service := variables.New(envRepo, varsRepo, publisher, accessControl)
 
 			err := service.UpdateEnvironmentVariables(context.Background(), tc.input)
 
@@ -258,7 +259,7 @@ func TestService_UpdateVariablesByClient(t *testing.T) {
 			publisher := &event.Publisher{}
 			expectedErr := tc.mockSetup(envRepo, varsRepo, accessControl)
 
-			service := New(envRepo, varsRepo, publisher, accessControl)
+			service := variables.New(envRepo, varsRepo, publisher, accessControl)
 
 			err := service.UpdateVariablesByClient(context.Background(), tc.input)
 
@@ -350,7 +351,7 @@ func TestService_RemoveVariableFromEnvironment(t *testing.T) {
 			publisher := &event.Publisher{}
 			expectedErr := tc.mockSetup(envRepo, varsRepo)
 
-			service := New(envRepo, varsRepo, publisher, accessControl)
+			service := variables.New(envRepo, varsRepo, publisher, accessControl)
 
 			err := service.RemoveVariableFromEnvironment(context.Background(), tc.input)
 

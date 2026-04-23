@@ -116,10 +116,9 @@ func newListEnvCmd() *cobra.Command {
 
 func newDeleteEnvCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:        "delete",
-		Short:      "Delete environment",
-		Args:       cobra.ExactArgs(1),
-		ArgAliases: []string{"environment name"},
+		Use:   "delete [environment name]",
+		Short: "Delete environment",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 			client, err := getGRPCClient()

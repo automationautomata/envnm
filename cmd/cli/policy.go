@@ -43,10 +43,9 @@ func policyCmd() *cobra.Command {
 
 func newCreatePolicyCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:        "create",
-		Short:      "Create access policy",
-		Args:       cobra.ExactArgs(1),
-		ArgAliases: []string{"policy name"},
+		Use:   "create [policy name]",
+		Short: "Create access policy",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
@@ -69,10 +68,9 @@ func newCreatePolicyCmd() *cobra.Command {
 
 func newFindPolicyCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:        "find",
-		Short:      "find policy by policy",
-		Args:       cobra.ExactArgs(1),
-		ArgAliases: []string{"policy name"},
+		Use:   "find [policy name]",
+		Short: "find policy by policy",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 			client, err := getGRPCClient()
@@ -94,10 +92,9 @@ func newFindPolicyCmd() *cobra.Command {
 
 func newGetAllEnvironmentsCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:        "list",
-		Short:      "get all policy environments",
-		Args:       cobra.ExactArgs(1),
-		ArgAliases: []string{"policy name"},
+		Use:   "list [policy id]",
+		Short: "get all policy environments",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			idStr := args[0]
 			client, err := getGRPCClient()
@@ -132,10 +129,9 @@ func newGetAllEnvironmentsCmd() *cobra.Command {
 
 func newRemovePolicyCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:        "delete",
-		Short:      "Remove access policy",
-		Args:       cobra.ExactArgs(1),
-		ArgAliases: []string{"policy id"},
+		Use:   "delete [policy id]",
+		Short: "Remove access policy",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			idStr := args[0]
 			client, err := getGRPCClient()
@@ -155,10 +151,9 @@ func newAddPolicyToEnvCmd() *cobra.Command {
 	var premission policyPremission
 
 	cmd := &cobra.Command{
-		Use:        "attach",
-		Short:      "Add policy to environment",
-		Args:       cobra.ExactArgs(2),
-		ArgAliases: []string{"environment name", "policy id"},
+		Use:   "attach [environment name] [policy id]",
+		Short: "Add policy to environment",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			envName, idStr := args[0], args[1]
 			client, err := getGRPCClient()
@@ -185,10 +180,9 @@ func newAddPolicyToEnvCmd() *cobra.Command {
 
 func newRemovePolicyFromEnvCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:        "detach",
-		Short:      "Remove policy from environment",
-		Args:       cobra.ExactArgs(2),
-		ArgAliases: []string{"environment name", "policy id"},
+		Use:   "detach [environment name] [policy id]",
+		Short: "Remove policy from environment",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			envName, idStr := args[0], args[1]
 			client, err := getGRPCClient()

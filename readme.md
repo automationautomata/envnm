@@ -6,6 +6,8 @@ Envnm - система управления переменными окруже�
 
 Разрабатывается в соответствии с принципами DDD и чистой архитектуры.
 
+Вся бизнес логика покрыта тестами, покрытие - 78.2%.
+
 ### Основные возможности
 
 - Управление переменными окружения
@@ -26,8 +28,8 @@ Distribution Service - для приложений-клиентов:
 - SubscribeOnUpdates — подписаться на изменения
 - UpdateVariables — обновить переменные (только с правом на изменение)
 
-Management Service - для администраторов:
-- Полный CRUD окружений и политик
+Management Service - для администратора:
+- CRUD окружений и политик
 - Защищён mTLS + Basic Auth
 - Есть cli-клиент 
 
@@ -88,7 +90,7 @@ graph TD
 2. **Локально:**
    ```bash
    make build
-   make run
+   make up
    ```
 
 ### CLI
@@ -140,21 +142,31 @@ policies:
 Конфигурация через переменные окружения:
 
 ```
-HOST=0.0.0.0
-PORT=50051
-LOG_LEVEL=INFO
-POSTGRES_HOST=localhost
+ENVMN_HOST=0.0.0.0
+ENVMN_PORT=8080
+
+METRICS_SERVER_HOST=localhost
+METRICS_SERVER_PORT=9090
+SEED_KEY=mysecretkey
+ENVMN_PASSWORD=password
+MAX_RETRIES=3
+RETRY_TIMEOUT=30s
+
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
-POSTGRES_DB=postgres
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
-REDIS_HOST=localhost
-REDIS_PORT=6379
-CACHE_TTL=5m
-MAX_RETRIES=3
-RETRY_TIMEOUT=10s
-SEED_KEY=your-secret-key
-CA_CERT_PATH=/path/to/ca.crt
-CERT_PATH=/path/to/server.crt
-KEY_PATH=/path/to/server.key
+POSTGRES_NAME=postgres
+POSTGRES_MAX_CONNECTIONS=5
+POSTGRES_MIN_CONNECTIONS=20
+
+SERVER_CA_CERT_PATH=dev-data/certs/ca.crt
+SERVER_CERT_PATH=dev-data/certs/server.crt
+SERVER_KEY_PATH=dev-data/certs/server.key
+ENVMN_CLIENT_CA_CERT_PATH=dev-data/certs/ca.crt
+ENVMN_CLIENT_CERT_PATH=dev-data/client.crt
+ENVMN_CLIENT_KEY_PATH=dev-data/certs/client.key
 ```

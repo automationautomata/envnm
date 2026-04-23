@@ -1,4 +1,4 @@
-package subscription
+package subscription_test
 
 import (
 	"context"
@@ -11,6 +11,7 @@ import (
 	"envmn/internal/service/dto"
 	errs "envmn/internal/service/errors"
 	"envmn/internal/service/mocks"
+	"envmn/internal/service/subscription"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -94,7 +95,7 @@ func TestService_SubscribeOnUpdates(t *testing.T) {
 				keyGen.On("Generate").Return("key-123").Once()
 			}
 
-			service := New(keyGen, envRepo, storage, publisher, notifier)
+			service := subscription.New(keyGen, envRepo, storage, publisher, notifier)
 
 			key, err := service.SubscribeOnUpdates(context.Background(), tc.input)
 

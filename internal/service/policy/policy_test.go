@@ -111,7 +111,7 @@ func TestService_AddPolicyToEnvironment(t *testing.T) {
 				envRepo.On("FindByName", mock.Anything, "test-env").Return(env, nil).Once()
 				policy := &entities.AccessPolicy{ID: uuid.New(), Name: "policy"}
 				policyRepo.On("FindByID", mock.Anything, mock.Anything).Return(policy, nil).Once()
-				envPolicies.On("AddToEnvironment", mock.Anything, env.ID, policy).Return(nil).Once()
+				envPolicies.On("AddToEnvironment", mock.Anything, env.ID, policy.ID, mock.Anything).Return(nil).Once()
 				return nil
 			},
 			expectedErr: nil,
@@ -156,7 +156,7 @@ func TestService_AddPolicyToEnvironment(t *testing.T) {
 				policy := &entities.AccessPolicy{ID: uuid.New(), Name: "policy"}
 				policyRepo.On("FindByID", mock.Anything, mock.Anything).Return(policy, nil).Once()
 				addErr := errors.New("add failed")
-				envPolicies.On("AddToEnvironment", mock.Anything, env.ID, policy).Return(addErr).Once()
+				envPolicies.On("AddToEnvironment", mock.Anything, env.ID, policy.ID, mock.Anything).Return(addErr).Once()
 				return addErr
 			},
 			expectedErr: nil,
@@ -307,7 +307,7 @@ func TestService_RemovePolicy(t *testing.T) {
 			mockSetup: func(policyRepo *mocks.MockAccessPolicyRepository) error {
 				policy := &entities.AccessPolicy{ID: uuid.New(), Name: "policy"}
 				policyRepo.On("FindByID", mock.Anything, mock.Anything).Return(policy, nil).Once()
-				policyRepo.On("Delete", mock.Anything, policy.ID).Return(nil).Once()
+				policyRepo.On("Remove", mock.Anything, policy.ID).Return(nil).Once()
 				return nil
 			},
 			expectedErr: nil,
@@ -332,7 +332,7 @@ func TestService_RemovePolicy(t *testing.T) {
 				policy := &entities.AccessPolicy{ID: uuid.New(), Name: "policy"}
 				policyRepo.On("FindByID", mock.Anything, mock.Anything).Return(policy, nil).Once()
 				deleteErr := errors.New("delete failed")
-				policyRepo.On("Delete", mock.Anything, policy.ID).Return(deleteErr).Once()
+				policyRepo.On("Remove", mock.Anything, policy.ID).Return(deleteErr).Once()
 				return deleteErr
 			},
 			expectedErr: nil,

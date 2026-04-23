@@ -5,3 +5,5 @@ todo.md
 dev-data
 bin
 **/mocks/
+coverage.out
+bin/
