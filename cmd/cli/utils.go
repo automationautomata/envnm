@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 func getGRPCClient() (*gRPCClient, error) {
@@ -49,4 +51,12 @@ func optionalString(s string) *string {
 		return nil
 	}
 	return &s
+}
+
+func markFlagsRequired(cmd *cobra.Command, names ...string) {
+	for _, flagName := range names {
+		if err := cmd.MarkFlagRequired(flagName); err != nil {
+			panic(err)
+		}
+	}
 }

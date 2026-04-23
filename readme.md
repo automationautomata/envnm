@@ -14,7 +14,7 @@ Envnm - система управления переменными окруже�
 - gRPC API для управления и клиентского доступа
 - CLI инструмент для администрирования
 - Кэширование переменных в Redis
-- Prometheus метрики
+- Prometheus метрики, содержит метрики для операций с кэшем
 - Поддержка TLS
 - Docker контейнеризация
 - Graceful shutdown
@@ -31,10 +31,6 @@ Management Service - для администраторов:
 - Защищён mTLS + Basic Auth
 - Есть cli-клиент 
 
-### Метрики
-
-Доступ к метрикам Prometheus. Включает метрики для:
-- Операций с кэшем
 
 ```mermaid
 
@@ -129,7 +125,7 @@ envmn environment create --name dev --description "Development environment"
 envmn variables set --env dev --key DATABASE_URL --value "postgres://..."
 
 # Создание политики доступа
-envmn policy create --name read-only --permissions read
+envmn policy create --name read-only --
 ```
 
 ### API

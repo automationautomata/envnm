@@ -25,6 +25,8 @@ const (
 	ManagementService_DeleteEnvironment_FullMethodName             = "/envmn.management.ManagementService/DeleteEnvironment"
 	ManagementService_UpdateEnvironmentInfo_FullMethodName         = "/envmn.management.ManagementService/UpdateEnvironmentInfo"
 	ManagementService_CreateAccessPolicy_FullMethodName            = "/envmn.management.ManagementService/CreateAccessPolicy"
+	ManagementService_ListPolicyEnvironments_FullMethodName        = "/envmn.management.ManagementService/ListPolicyEnvironments"
+	ManagementService_GetPolicyByName_FullMethodName               = "/envmn.management.ManagementService/GetPolicyByName"
 	ManagementService_RemovePolicy_FullMethodName                  = "/envmn.management.ManagementService/RemovePolicy"
 	ManagementService_AddPolicyToEnvironment_FullMethodName        = "/envmn.management.ManagementService/AddPolicyToEnvironment"
 	ManagementService_RemovePolicyFromEnvironment_FullMethodName   = "/envmn.management.ManagementService/RemovePolicyFromEnvironment"
@@ -42,6 +44,8 @@ type ManagementServiceClient interface {
 	DeleteEnvironment(ctx context.Context, in *DeleteEnvironmentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateEnvironmentInfo(ctx context.Context, in *UpdateEnvironmentInfoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateAccessPolicy(ctx context.Context, in *CreateAccessPolicyRequest, opts ...grpc.CallOption) (*CreateAccessPolicyResponse, error)
+	ListPolicyEnvironments(ctx context.Context, in *ListPolicyEnvironmentsRequest, opts ...grpc.CallOption) (*ListPolicyEnvironmentsResponse, error)
+	GetPolicyByName(ctx context.Context, in *GetPolicyByNameRequest, opts ...grpc.CallOption) (*GetPolicyByNameResponse, error)
 	RemovePolicy(ctx context.Context, in *RemovePolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddPolicyToEnvironment(ctx context.Context, in *AddPolicyToEnvironmentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemovePolicyFromEnvironment(ctx context.Context, in *RemovePolicyFromEnvironmentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -101,6 +105,26 @@ func (c *managementServiceClient) CreateAccessPolicy(ctx context.Context, in *Cr
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateAccessPolicyResponse)
 	err := c.cc.Invoke(ctx, ManagementService_CreateAccessPolicy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) ListPolicyEnvironments(ctx context.Context, in *ListPolicyEnvironmentsRequest, opts ...grpc.CallOption) (*ListPolicyEnvironmentsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListPolicyEnvironmentsResponse)
+	err := c.cc.Invoke(ctx, ManagementService_ListPolicyEnvironments_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) GetPolicyByName(ctx context.Context, in *GetPolicyByNameRequest, opts ...grpc.CallOption) (*GetPolicyByNameResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPolicyByNameResponse)
+	err := c.cc.Invoke(ctx, ManagementService_GetPolicyByName_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -167,6 +191,8 @@ type ManagementServiceServer interface {
 	DeleteEnvironment(context.Context, *DeleteEnvironmentRequest) (*emptypb.Empty, error)
 	UpdateEnvironmentInfo(context.Context, *UpdateEnvironmentInfoRequest) (*emptypb.Empty, error)
 	CreateAccessPolicy(context.Context, *CreateAccessPolicyRequest) (*CreateAccessPolicyResponse, error)
+	ListPolicyEnvironments(context.Context, *ListPolicyEnvironmentsRequest) (*ListPolicyEnvironmentsResponse, error)
+	GetPolicyByName(context.Context, *GetPolicyByNameRequest) (*GetPolicyByNameResponse, error)
 	RemovePolicy(context.Context, *RemovePolicyRequest) (*emptypb.Empty, error)
 	AddPolicyToEnvironment(context.Context, *AddPolicyToEnvironmentRequest) (*emptypb.Empty, error)
 	RemovePolicyFromEnvironment(context.Context, *RemovePolicyFromEnvironmentRequest) (*emptypb.Empty, error)
@@ -196,6 +222,12 @@ func (UnimplementedManagementServiceServer) UpdateEnvironmentInfo(context.Contex
 }
 func (UnimplementedManagementServiceServer) CreateAccessPolicy(context.Context, *CreateAccessPolicyRequest) (*CreateAccessPolicyResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateAccessPolicy not implemented")
+}
+func (UnimplementedManagementServiceServer) ListPolicyEnvironments(context.Context, *ListPolicyEnvironmentsRequest) (*ListPolicyEnvironmentsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListPolicyEnvironments not implemented")
+}
+func (UnimplementedManagementServiceServer) GetPolicyByName(context.Context, *GetPolicyByNameRequest) (*GetPolicyByNameResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPolicyByName not implemented")
 }
 func (UnimplementedManagementServiceServer) RemovePolicy(context.Context, *RemovePolicyRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method RemovePolicy not implemented")
@@ -323,6 +355,42 @@ func _ManagementService_CreateAccessPolicy_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ManagementService_ListPolicyEnvironments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPolicyEnvironmentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).ListPolicyEnvironments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_ListPolicyEnvironments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).ListPolicyEnvironments(ctx, req.(*ListPolicyEnvironmentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_GetPolicyByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPolicyByNameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).GetPolicyByName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_GetPolicyByName_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).GetPolicyByName(ctx, req.(*GetPolicyByNameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ManagementService_RemovePolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemovePolicyRequest)
 	if err := dec(in); err != nil {
@@ -439,6 +507,14 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateAccessPolicy",
 			Handler:    _ManagementService_CreateAccessPolicy_Handler,
+		},
+		{
+			MethodName: "ListPolicyEnvironments",
+			Handler:    _ManagementService_ListPolicyEnvironments_Handler,
+		},
+		{
+			MethodName: "GetPolicyByName",
+			Handler:    _ManagementService_GetPolicyByName_Handler,
 		},
 		{
 			MethodName: "RemovePolicy",

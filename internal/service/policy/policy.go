@@ -57,26 +57,41 @@ func (s *service) AddPolicyToEnvironment(ctx context.Context, input dto.AddPolic
 		return err
 	}
 
-	if err = s.envPoliciesRepo.AddToEnvironment(ctx, env.ID, policy); err != nil {
+	if err = s.envPoliciesRepo.AddToEnvironment(ctx, env.ID, policy.ID, input.ChangesPermission); err != nil {
 		return fmt.Errorf("cannot add policy to environment: %w", err)
 	}
 	return nil
 }
 
-func (s *service) ListPolicyEnvironments(ctx context.Context, input dto.ListPolicyEnvironments) ([]*dto.PolicyEnvironmentDTO, error) {
-	envs, err := s.envPoliciesRepo.ListPolicyEnvironments(ctx, input.ID)
+func (s *service) ListPolicyEnvironments(ctx context.Context, input dto.ListPolicyEnvironmentsInput) ([]*dto.PolicyEnvironmentsItem, error) {
+	envs, err := s.policyRepo.ListPolicyEnvironments(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	dtos := make([]*dto.PolicyEnvironmentDTO, len(envs))
+	items := make([]*dto.PolicyEnvironmentsItem, len(envs))
 	for i := range envs {
-		dtos[i] = &dto.PolicyEnvironmentDTO{
-			Name:           envs[i].Name,
-			ChangesAllowed: envs[i].ChangesAllowed,
+		items[i] = &dto.PolicyEnvironmentsItem{
+			EnvironmentName:   envs[i].Name,
+			ChangesPermission: envs[i].ChangesPermission,
 		}
 	}
-	return dtos, nil
+	return items, nil
+}
+
+func (s *service) GetPolicyByName(ctx context.Context, input dto.GetPolicyByNameInput) (*dto.PolicyDTO, error) {
+	policy, err := s.policyRepo.FindByName(ctx, input.Name)
+	if err != nil {
+		return nil, err
+	}
+	if policy == nil {
+		return nil, errs.ErrAccessPolicyNotFound
+	}
+
+	return &dto.PolicyDTO{
+		ID:   policy.ID,
+		Name: policy.Name,
+	}, nil
 }
 
 func (s *service) RemovePolicyFromEnvironment(ctx context.Context, input dto.RemovePolicyFromEnvironmentInput) error {
@@ -102,7 +117,7 @@ func (s *service) RemovePolicy(ctx context.Context, input dto.RemovePolicyInput)
 		return err
 	}
 
-	if err := s.policyRepo.Delete(ctx, policy.ID); err != nil {
+	if err := s.policyRepo.Remove(ctx, policy.ID); err != nil {
 		return fmt.Errorf("cannot remove policy: %w", err)
 	}
 	return nil

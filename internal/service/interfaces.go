@@ -25,6 +25,8 @@ type ManageEnvironment interface {
 
 type ManageAccessPolicy interface {
 	CreateAccessPolicy(ctx context.Context, input dto.CreateAccessPolicyInput) (uuid.UUID, error)
+	ListPolicyEnvironments(ctx context.Context, input dto.ListPolicyEnvironmentsInput) ([]*dto.PolicyEnvironmentsItem, error)
+	GetPolicyByName(ctx context.Context, input dto.GetPolicyByNameInput) (*dto.PolicyDTO, error)
 	RemovePolicy(ctx context.Context, input dto.RemovePolicyInput) error
 	AddPolicyToEnvironment(ctx context.Context, input dto.AddPolicyToEnvironmentInput) error
 	RemovePolicyFromEnvironment(ctx context.Context, input dto.RemovePolicyFromEnvironmentInput) error

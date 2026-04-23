@@ -37,6 +37,10 @@ func newUpdateVarsCmd() *cobra.Command {
 				}
 			}
 
+			if len(vars) == 0 {
+				return nil
+			}
+
 			client, err := getGRPCClient()
 			if err != nil {
 				return err
@@ -57,9 +61,7 @@ func newUpdateVarsCmd() *cobra.Command {
 	cmd.Flags().StringVar(&envName, "env", "", "Environment name")
 	cmd.Flags().StringToStringVar(&vars, "var", map[string]string{}, "Variables KEY=VALUE")
 	cmd.Flags().StringVar(&file, "file", "", ".env file path")
-	if err := cmd.MarkFlagRequired("env"); err != nil {
-		panic(err)
-	}
+	markFlagsRequired(cmd, "env")
 	return cmd
 }
 
@@ -87,11 +89,7 @@ func newRemoveVarCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&envName, "env", "", "Environment name")
 	cmd.Flags().StringVar(&key, "key", "", "Variable key")
-	if err := cmd.MarkFlagRequired("env"); err != nil {
-		panic(err)
-	}
-	if err := cmd.MarkFlagRequired("key"); err != nil {
-		panic(err)
-	}
+
+	markFlagsRequired(cmd, "env", "key")
 	return cmd
 }

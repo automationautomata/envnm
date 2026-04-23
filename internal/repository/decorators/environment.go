@@ -3,7 +3,6 @@ package decorators
 import (
 	"context"
 	"envmn/internal/domain/environment/aggregates"
-	"envmn/internal/domain/environment/entities"
 	"envmn/internal/repository/cache"
 	"envmn/internal/service/ports"
 	"envmn/logs"
@@ -113,8 +112,8 @@ func (r *environmentRepositoryCache) UpdateVariables(ctx context.Context, env *a
 	return nil
 }
 
-func (r *environmentRepositoryCache) AddToEnvironment(ctx context.Context, envID uuid.UUID, policy *entities.AccessPolicy) error {
-	err := r.EnvironmentPoliciesRepository.AddToEnvironment(ctx, envID, policy)
+func (r *environmentRepositoryCache) AddToEnvironment(ctx context.Context, envID uuid.UUID, policyID uuid.UUID, canChange bool) error {
+	err := r.EnvironmentPoliciesRepository.AddToEnvironment(ctx, envID, policyID, canChange)
 	if err != nil {
 		return err
 	}

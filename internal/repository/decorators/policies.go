@@ -18,9 +18,10 @@ import (
 const policyCacheKeyBase = "policy"
 
 type policyRepositoryCache struct {
-	cache *cache.PolicyCache
-	group *singleflight.Group
-	log   logs.Logger
+	policyCache *cache.PolicyCache
+	envCache    *cache.EnvironmentCache
+	group       *singleflight.Group
+	log         logs.Logger
 	ports.AccessPolicyRepository
 	domainports.AccessPolicyFinderSaver
 }
@@ -32,7 +33,8 @@ func NewPolicyRepositoryCache(
 	finderSaver domainports.AccessPolicyFinderSaver,
 ) *policyRepositoryCache {
 	return &policyRepositoryCache{
-		cache:                   cache.NewPolicyCache(settings),
+		policyCache:             cache.NewPolicyCache(settings),
+		envCache:                cache.NewEnvironmentCache(settings),
 		group:                   &singleflight.Group{},
 		log:                     log,
 		AccessPolicyRepository:  polisyRepo,
@@ -44,9 +46,9 @@ func (r *policyRepositoryCache) FindByID(ctx context.Context, id uuid.UUID) (*en
 	groupKey := fmt.Sprintf("repo.policy.find_by_id.%s", id)
 
 	rawPolicy, err, _ := r.group.Do(groupKey, func() (any, error) {
-		policy, err := r.cache.GetByID(ctx, id)
+		policy, err := r.policyCache.GetByID(ctx, id)
 		if err == nil {
-			r.cache.Hit("policy", "id")
+			r.policyCache.Hit("policy", "id")
 			return policy, nil
 		}
 		miss := errors.Is(err, cache.ErrValueNotFound)
@@ -63,12 +65,12 @@ func (r *policyRepositoryCache) FindByID(ctx context.Context, id uuid.UUID) (*en
 		}
 
 		if policy != nil && miss {
-			r.cache.Miss("policy", "id")
+			r.policyCache.Miss("policy", "id")
 			return nil, nil
 		}
 
 		go func() {
-			err := r.cache.Set(ctx, policy)
+			err := r.policyCache.Set(ctx, policy)
 			if err != nil {
 				r.log.Error(
 					"FindByID: cannot set policy to cache",
@@ -85,13 +87,33 @@ func (r *policyRepositoryCache) FindByID(ctx context.Context, id uuid.UUID) (*en
 	return rawPolicy.(*entities.AccessPolicy), nil
 }
 
+func (r *policyRepositoryCache) Remove(ctx context.Context, id uuid.UUID) error {
+	envs, err := r.AccessPolicyRepository.ListPolicyEnvironments(ctx, id)
+	if err != nil {
+		return fmt.Errorf("cache failed: %w", err)
+	}
+
+	for _, env := range envs {
+		err := r.envCache.RemoveByName(ctx, env.Name)
+		if err != nil {
+			r.log.Error(
+				"Remove: cannot remove environments from cache (by name) while removing policy id",
+				logs.Args{"name": env.Name, "policy_id": id, "error": err},
+			)
+			return errors.New("cache failed on removing old data")
+		}
+	}
+
+	return r.AccessPolicyRepository.Remove(ctx, id)
+}
+
 func (r *policyRepositoryCache) FindByKey(ctx context.Context, key string) (*entities.AccessPolicy, error) {
 	groupKey := fmt.Sprintf("repo.policy.find_by_key.%s", key)
 
 	rawPolicy, err, _ := r.group.Do(groupKey, func() (any, error) {
-		policy, err := r.cache.GetByKey(ctx, key)
+		policy, err := r.policyCache.GetByKey(ctx, key)
 		if err == nil {
-			r.cache.Hit("policy", "id")
+			r.policyCache.Hit("policy", "id")
 			return policy, nil
 		}
 
@@ -109,12 +131,12 @@ func (r *policyRepositoryCache) FindByKey(ctx context.Context, key string) (*ent
 		}
 
 		if policy != nil && miss {
-			r.cache.Miss("policy", "id")
+			r.policyCache.Miss("policy", "id")
 			return nil, nil
 		}
 
 		go func() {
-			err := r.cache.Set(ctx, policy)
+			err := r.policyCache.Set(ctx, policy)
 			if err != nil {
 				r.log.Error(
 					"FindByKey: cannot set policy to cache",

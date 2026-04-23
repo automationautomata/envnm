@@ -1,11 +1,11 @@
 -- name: GetPoliciesByEnv :many
-SELECT p.id, p.name, p.key, ep.changes_allowed
+SELECT p.id, p.name, p.key, ep.changes_permission
 FROM environments_access_policies ep
 INNER JOIN access_policies p ON p.id = ep.access_policy_id
 WHERE ep.environment_id = $1;
 
 -- name: ListPolicyEnvironments :many
-SELECT e.name, ep.changes_allowed
+SELECT e.name, ep.changes_permission
 FROM environments_access_policies ep
 INNER JOIN environments e ON e.id = ep.environment_id
 WHERE ep.access_policy_id = $1;
@@ -30,7 +30,7 @@ INSERT INTO access_policies (id, name, key)
 VALUES ($1, $2, $3);
 
 -- name: AddPolicyToEnvironment :exec
-INSERT INTO environments_access_policies (environment_id, access_policy_id, changes_allowed)
+INSERT INTO environments_access_policies (environment_id, access_policy_id, changes_permission)
 VALUES ($1, $2, $3);
 
 -- name: DeletePolicyFromEnvironment :exec

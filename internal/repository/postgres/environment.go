@@ -135,7 +135,7 @@ func (r *environmentsRepository) toEnvironment(ctx context.Context, env queries.
 	e.LastVariablesUpdate = env.LastVariablesUpdate
 
 	for _, p := range policyRows {
-		e.AddPolicy(p.ID, p.ChangesAllowed)
+		e.AddPolicy(p.ID, p.ChangesPermission)
 	}
 
 	return e, nil

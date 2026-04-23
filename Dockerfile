@@ -46,7 +46,7 @@ ENV LOG_LEVEL=INFO \
     ENVMN_CLIENT_CERT_PATH="${CERTS_DIR}/client.crt" \
     ENVMN_CLIENT_KEY_PATH="${CERTS_DIR}/client.key"
     
-RUN ln -s ./envmn-cli  /usr/bin/envmn && \
+RUN ln -s ./envmn-cli /usr/bin/envmn && \
     mkdir $CERTS_DIR && \
     ./scripts/gen-certs.sh $CERTS_DIR && \
     ./scripts/gen-seed.sh $KEY_SEED_FILE

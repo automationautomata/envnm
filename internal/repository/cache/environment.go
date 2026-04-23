@@ -7,6 +7,7 @@ import (
 	vo "envmn/internal/domain/environment/valueobjects"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -16,6 +17,7 @@ const (
 	environmentCacheKeyBase         = "env"
 	variablesCacheKeyBase           = "env:vars"
 	environmentPoliciesCacheKeyBase = "env:policies"
+	removeButchSize                 = 200
 )
 
 var resetScript = redis.NewScript(
@@ -184,12 +186,60 @@ func (c *EnvironmentCache) Remove(ctx context.Context, envID uuid.UUID) error {
 	}
 
 	keys := []string{
-		envKey,
 		c.makeEnvironmentCacheKey(dto.Name),
 		c.makePoliciesCacheKey(envID.String()),
 		c.makeVariablesCacheKey(envID.String()),
 	}
 	return c.rdb.Del(ctx, keys...).Err()
+}
+
+func (c *EnvironmentCache) RemoveByName(ctx context.Context, name string) error {
+	envKeyAlias := c.makeEnvironmentCacheKey(name)
+
+	envKey, err := c.rdb.GetDel(ctx, envKeyAlias).Result()
+	if err == redis.Nil {
+		return ErrValueNotFound
+	}
+	if err != nil {
+		return err
+	}
+
+	parts := strings.Split(envKey, ":")
+	envID := parts[len(parts)-1]
+	keys := []string{
+		envKey,
+		c.makePoliciesCacheKey(envID),
+		c.makeVariablesCacheKey(envID),
+	}
+	return c.rdb.Del(ctx, keys...).Err()
+}
+
+func (c *EnvironmentCache) RemoveAll(ctx context.Context) error {
+	var totalDeleted int64
+	var cursor uint64
+
+	prefix := fmt.Sprint(environmentCacheKeyBase, "*")
+	for {
+		keys, cur, err := c.rdb.Scan(ctx, cursor, prefix, removeButchSize).Result()
+		if err != nil {
+			return fmt.Errorf("scan %q: %w", prefix, err)
+		}
+
+		if len(keys) > 0 {
+			n, err := c.rdb.Del(ctx, keys...).Result()
+			if err != nil {
+				return fmt.Errorf("del keys: %w", err)
+			}
+			totalDeleted += n
+		}
+
+		cursor = cur
+		if cursor == 0 {
+			break
+		}
+	}
+
+	return nil
 }
 
 type cmdInfo struct {

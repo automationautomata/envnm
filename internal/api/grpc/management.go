@@ -90,9 +90,8 @@ func (s *managementServiceServer) UpdateEnvironmentInfo(ctx context.Context, req
 
 func (s *managementServiceServer) CreateAccessPolicy(ctx context.Context, req *pb.CreateAccessPolicyRequest) (*pb.CreateAccessPolicyResponse, error) {
 	id, err := s.svc.CreateAccessPolicy(ctx, dto.CreateAccessPolicyInput{
-		Name:           req.Name,
-		Key:            req.Key,
-		ChangesAllowed: req.ChangesAllowed,
+		Name: req.Name,
+		Key:  req.Key,
 	})
 	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {
@@ -104,6 +103,48 @@ func (s *managementServiceServer) CreateAccessPolicy(ctx context.Context, req *p
 	return &pb.CreateAccessPolicyResponse{
 		Id: id.String(),
 	}, nil
+}
+
+func (s *managementServiceServer) GetPolicyByName(ctx context.Context, req *pb.GetPolicyByNameRequest) (*pb.GetPolicyByNameResponse, error) {
+	policy, err := s.svc.GetPolicyByName(ctx, dto.GetPolicyByNameInput{
+		Name: req.Name,
+	})
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
+		if isInternal {
+			s.log.Error("cannot get policy by name", logs.Args{"name": req.Name, "error": err})
+		}
+		return nil, handlerError
+	}
+	return &pb.GetPolicyByNameResponse{
+		Id:   policy.ID.String(),
+		Name: policy.Name,
+		Key:  policy.Key,
+	}, nil
+}
+func (s *managementServiceServer) ListPolicyEnvironments(ctx context.Context, req *pb.ListPolicyEnvironmentsRequest) (*pb.ListPolicyEnvironmentsResponse, error) {
+	policyID, err := uuid.Parse(req.PolicyId)
+	if err != nil {
+		return nil, err
+	}
+
+	items, err := s.svc.ListPolicyEnvironments(ctx, dto.ListPolicyEnvironmentsInput{
+		ID: policyID,
+	})
+	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
+		if isInternal {
+			s.log.Error("cannot list policy environments", logs.Args{"policy_id": req.PolicyId, "error": err})
+		}
+		return nil, handlerError
+	}
+
+	respItem := make([]*pb.PolicyEnvironmentsItem, len(items))
+	for i, item := range items {
+		respItem[i] = &pb.PolicyEnvironmentsItem{
+			EnvironmentName:   item.EnvironmentName,
+			ChangesPermission: item.ChangesPermission,
+		}
+	}
+	return &pb.ListPolicyEnvironmentsResponse{Items: respItem}, nil
 }
 
 func (s *managementServiceServer) RemovePolicy(ctx context.Context, req *pb.RemovePolicyRequest) (*emptypb.Empty, error) {
@@ -131,8 +172,9 @@ func (s *managementServiceServer) AddPolicyToEnvironment(ctx context.Context, re
 	}
 
 	err = s.svc.AddPolicyToEnvironment(ctx, dto.AddPolicyToEnvironmentInput{
-		EnvironmentName: req.EnvironmentName,
-		PolicyID:        policyID,
+		PolicyID:          policyID,
+		EnvironmentName:   req.EnvironmentName,
+		ChangesPermission: req.ChangesPermission,
 	})
 	if handlerError, isInternal := grpcerrs.ToGRPCError(err); handlerError != nil {
 		if isInternal {

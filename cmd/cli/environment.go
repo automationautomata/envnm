@@ -62,8 +62,7 @@ func newCreateEnvCmd() *cobra.Command {
 	cmd.Flags().StringVar(&desc, "desc", "", "Description")
 	cmd.Flags().StringToStringVar(&vars, "var", nil, "Variables (KEY=VALUE)")
 	cmd.Flags().StringVar(&file, "file", "", ".env file")
-	_ = cmd.MarkFlagRequired("name")
-
+	markFlagsRequired(cmd, "name")
 	return cmd
 }
 
@@ -115,7 +114,7 @@ func newDeleteEnvCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&name, "name", "", "Environment name")
-	_ = cmd.MarkFlagRequired("name")
+	markFlagsRequired(cmd, "name")
 	return cmd
 }
 
@@ -144,6 +143,6 @@ func newUpdateEnvCmd() *cobra.Command {
 	cmd.Flags().StringVar(&oldName, "old", "", "Old name")
 	cmd.Flags().StringVar(&newName, "new", "", "New name")
 	cmd.Flags().StringVar(&desc, "desc", "", "New description")
-	_ = cmd.MarkFlagRequired("old")
+	markFlagsRequired(cmd, "old")
 	return cmd
 }

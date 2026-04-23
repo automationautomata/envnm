@@ -119,8 +119,8 @@ func (e *Environment) AccessPoliciesCount() int {
 	return len(e.accessPolicies)
 }
 
-func (e *Environment) AddPolicy(policyID uuid.UUID, allowChanges bool) {
-	e.accessPolicies[policyID] = allowChanges
+func (e *Environment) AddPolicy(policyID uuid.UUID, canChange bool) {
+	e.accessPolicies[policyID] = canChange
 }
 
 func (e *Environment) RemoveAccessPolicy(accessPolicyID uuid.UUID) error {

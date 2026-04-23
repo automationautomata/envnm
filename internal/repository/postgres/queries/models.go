@@ -26,9 +26,9 @@ type Environment struct {
 }
 
 type EnvironmentsAccessPolicy struct {
-	AccessPolicyID uuid.UUID `db:"access_policy_id"`
-	EnvironmentID  uuid.UUID `db:"environment_id"`
-	ChangesAllowed bool      `db:"changes_allowed"`
+	AccessPolicyID    uuid.UUID `db:"access_policy_id"`
+	EnvironmentID     uuid.UUID `db:"environment_id"`
+	ChangesPermission bool      `db:"changes_permission"`
 }
 
 type Variable struct {

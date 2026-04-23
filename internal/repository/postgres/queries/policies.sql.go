@@ -12,18 +12,18 @@ import (
 )
 
 const addPolicyToEnvironment = `-- name: AddPolicyToEnvironment :exec
-INSERT INTO environments_access_policies (environment_id, access_policy_id, changes_allowed)
+INSERT INTO environments_access_policies (environment_id, access_policy_id, changes_permission)
 VALUES ($1, $2, $3)
 `
 
 type AddPolicyToEnvironmentParams struct {
-	EnvironmentID  uuid.UUID `db:"environment_id"`
-	AccessPolicyID uuid.UUID `db:"access_policy_id"`
-	ChangesAllowed bool      `db:"changes_allowed"`
+	EnvironmentID     uuid.UUID `db:"environment_id"`
+	AccessPolicyID    uuid.UUID `db:"access_policy_id"`
+	ChangesPermission bool      `db:"changes_permission"`
 }
 
 func (q *Queries) AddPolicyToEnvironment(ctx context.Context, arg AddPolicyToEnvironmentParams) error {
-	_, err := q.db.Exec(ctx, addPolicyToEnvironment, arg.EnvironmentID, arg.AccessPolicyID, arg.ChangesAllowed)
+	_, err := q.db.Exec(ctx, addPolicyToEnvironment, arg.EnvironmentID, arg.AccessPolicyID, arg.ChangesPermission)
 	return err
 }
 
@@ -126,17 +126,17 @@ func (q *Queries) FindPolicyByName(ctx context.Context, name string) (FindPolicy
 }
 
 const getPoliciesByEnv = `-- name: GetPoliciesByEnv :many
-SELECT p.id, p.name, p.key, ep.changes_allowed
+SELECT p.id, p.name, p.key, ep.changes_permission
 FROM environments_access_policies ep
 INNER JOIN access_policies p ON p.id = ep.access_policy_id
 WHERE ep.environment_id = $1
 `
 
 type GetPoliciesByEnvRow struct {
-	ID             uuid.UUID `db:"id"`
-	Name           string    `db:"name"`
-	Key            string    `db:"key"`
-	ChangesAllowed bool      `db:"changes_allowed"`
+	ID                uuid.UUID `db:"id"`
+	Name              string    `db:"name"`
+	Key               string    `db:"key"`
+	ChangesPermission bool      `db:"changes_permission"`
 }
 
 func (q *Queries) GetPoliciesByEnv(ctx context.Context, environmentID uuid.UUID) ([]GetPoliciesByEnvRow, error) {
@@ -152,7 +152,7 @@ func (q *Queries) GetPoliciesByEnv(ctx context.Context, environmentID uuid.UUID)
 			&i.ID,
 			&i.Name,
 			&i.Key,
-			&i.ChangesAllowed,
+			&i.ChangesPermission,
 		); err != nil {
 			return nil, err
 		}
@@ -165,15 +165,15 @@ func (q *Queries) GetPoliciesByEnv(ctx context.Context, environmentID uuid.UUID)
 }
 
 const listPolicyEnvironments = `-- name: ListPolicyEnvironments :many
-SELECT e.name, ep.changes_allowed
+SELECT e.name, ep.changes_permission
 FROM environments_access_policies ep
 INNER JOIN environments e ON e.id = ep.environment_id
 WHERE ep.access_policy_id = $1
 `
 
 type ListPolicyEnvironmentsRow struct {
-	Name           string `db:"name"`
-	ChangesAllowed bool   `db:"changes_allowed"`
+	Name              string `db:"name"`
+	ChangesPermission bool   `db:"changes_permission"`
 }
 
 func (q *Queries) ListPolicyEnvironments(ctx context.Context, accessPolicyID uuid.UUID) ([]ListPolicyEnvironmentsRow, error) {
@@ -185,7 +185,7 @@ func (q *Queries) ListPolicyEnvironments(ctx context.Context, accessPolicyID uui
 	var items []ListPolicyEnvironmentsRow
 	for rows.Next() {
 		var i ListPolicyEnvironmentsRow
-		if err := rows.Scan(&i.Name, &i.ChangesAllowed); err != nil {
+		if err := rows.Scan(&i.Name, &i.ChangesPermission); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

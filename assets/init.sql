@@ -29,7 +29,7 @@ CREATE TABLE variables (
 CREATE TABLE environments_access_policies (
     access_policy_id uuid NOT NULL REFERENCES access_policies(id) ON DELETE CASCADE,
     environment_id uuid NOT NULL REFERENCES environments(id) ON DELETE CASCADE,
-    changes_allowed boolean NOT NULL DEFAULT false,
+    changes_permission boolean NOT NULL DEFAULT false,
     UNIQUE (access_policy_id, environment_id)
 );
 

@@ -39,22 +39,26 @@ type UpdateEnvironmentInfoInput struct {
 }
 
 type CreateAccessPolicyInput struct {
-	Name           string
-	Key            string
-	ChangesAllowed bool
+	Name string
+	Key  string
 }
 
 type RemovePolicyInput struct {
 	ID uuid.UUID
 }
 
-type ListPolicyEnvironments struct {
+type ListPolicyEnvironmentsInput struct {
 	ID uuid.UUID
 }
 
+type GetPolicyByNameInput struct {
+	Name string
+}
+
 type AddPolicyToEnvironmentInput struct {
-	EnvironmentName string
-	PolicyID        uuid.UUID
+	PolicyID          uuid.UUID
+	EnvironmentName   string
+	ChangesPermission bool
 }
 
 type RemovePolicyFromEnvironmentInput struct {
@@ -88,15 +92,21 @@ type EnvironmentDTO struct {
 	Reserved    bool
 }
 
-type PolicyDTO struct {
-	Name           string
-	Key            string
-	ChangesAllowed bool
+type EnvironmentPolicyItem struct {
+	Name              string
+	Key               string
+	ChangesPermission bool
 }
 
-type PolicyEnvironmentDTO struct {
-	Name           string
-	ChangesAllowed bool
+type PolicyEnvironmentsItem struct {
+	EnvironmentName   string
+	ChangesPermission bool
+}
+
+type PolicyDTO struct {
+	ID   uuid.UUID
+	Name string
+	Key  string
 }
 
 type AuthByPasswordInput struct {

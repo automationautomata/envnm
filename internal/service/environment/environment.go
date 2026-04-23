@@ -111,7 +111,7 @@ func (s *service) GetAllEnvironments(ctx context.Context, input dto.GetAllEnviro
 	return res, nil
 }
 
-func (s *service) GetEnvironmentPolicies(ctx context.Context, input dto.GetEnvironmentPoliciesInput) ([]*dto.PolicyDTO, error) {
+func (s *service) GetEnvironmentPolicies(ctx context.Context, input dto.GetEnvironmentPoliciesInput) ([]*dto.EnvironmentPolicyItem, error) {
 	env, err := s.getEnvironment(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, nil
@@ -122,15 +122,15 @@ func (s *service) GetEnvironmentPolicies(ctx context.Context, input dto.GetEnvir
 		return nil, fmt.Errorf("cannot get list of environmentt policies: %w", err)
 	}
 
-	dtos := make([]*dto.PolicyDTO, len(policies))
+	items := make([]*dto.EnvironmentPolicyItem, len(policies))
 	for i, policy := range policies {
-		dtos[i] = &dto.PolicyDTO{
-			Name:           policy.Name,
-			Key:            policy.Key,
-			ChangesAllowed: env.CanBeChangedBy(policy.ID),
+		items[i] = &dto.EnvironmentPolicyItem{
+			Name:              policy.Name,
+			Key:               policy.Key,
+			ChangesPermission: env.CanBeChangedBy(policy.ID),
 		}
 	}
-	return dtos, nil
+	return items, nil
 }
 
 // UpdateEnvironment — меняет имя/описание окружения

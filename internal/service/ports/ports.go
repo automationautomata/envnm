@@ -25,14 +25,15 @@ type EnvironmentInfoUpdate struct {
 }
 
 type PolicyEnvironment struct {
-	Name           string
-	ChangesAllowed bool
+	Name              string
+	ChangesPermission bool
 }
 
 type AccessPolicyRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*entities.AccessPolicy, error)
 	FindByName(ctx context.Context, name string) (*entities.AccessPolicy, error)
-	Delete(ctx context.Context, id uuid.UUID) error
+	ListPolicyEnvironments(ctx context.Context, policyID uuid.UUID) ([]*PolicyEnvironment, error)
+	Remove(ctx context.Context, id uuid.UUID) error
 }
 
 type EnvironmentRepository interface {
@@ -46,9 +47,8 @@ type EnvironmentRepository interface {
 
 type EnvironmentPoliciesRepository interface {
 	GetEnvironmentPolicies(ctx context.Context, envID uuid.UUID) ([]*entities.AccessPolicy, error)
-	AddToEnvironment(ctx context.Context, envID uuid.UUID, policy *entities.AccessPolicy) error
+	AddToEnvironment(ctx context.Context, envID, policyID uuid.UUID, canChange bool) error
 	DeleteFromEnvironment(ctx context.Context, envID uuid.UUID, policyID uuid.UUID) error
-	ListPolicyEnvironments(ctx context.Context, policyID uuid.UUID) ([]*PolicyEnvironment, error)
 }
 
 type EnvironmentVariablesRepository interface {

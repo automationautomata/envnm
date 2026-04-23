@@ -39,8 +39,8 @@ func (r *accessPoliciesRepository) ListPolicyEnvironments(ctx context.Context, p
 	res := make([]*ports.PolicyEnvironment, len(rows))
 	for i := range rows {
 		res[i] = &ports.PolicyEnvironment{
-			Name:           rows[i].Name,
-			ChangesAllowed: rows[i].ChangesAllowed,
+			Name:              rows[i].Name,
+			ChangesPermission: rows[i].ChangesPermission,
 		}
 	}
 	return res, nil
@@ -103,20 +103,11 @@ func (r *accessPoliciesRepository) GetEnvironmentPolicies(ctx context.Context, e
 	return res, nil
 }
 
-func (r *accessPoliciesRepository) AddToEnvironment(ctx context.Context, envID uuid.UUID, policy *entities.AccessPolicy) error {
-	err := r.conn.CreatePolicy(ctx, queries.CreatePolicyParams{
-		ID:   policy.ID,
-		Name: policy.Name,
-		Key:  policy.Key,
-	})
-	if err != nil {
-		return err
-	}
-
+func (r *accessPoliciesRepository) AddToEnvironment(ctx context.Context, envID, policyID uuid.UUID, canChange bool) error {
 	return r.conn.AddPolicyToEnvironment(ctx, queries.AddPolicyToEnvironmentParams{
-		EnvironmentID:  envID,
-		AccessPolicyID: policy.ID,
-		ChangesAllowed: true, // или из policy если есть
+		EnvironmentID:     envID,
+		AccessPolicyID:    policyID,
+		ChangesPermission: canChange,
 	})
 }
 
@@ -127,6 +118,6 @@ func (r *accessPoliciesRepository) DeleteFromEnvironment(ctx context.Context, en
 	})
 }
 
-func (r *accessPoliciesRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *accessPoliciesRepository) Remove(ctx context.Context, id uuid.UUID) error {
 	return r.conn.DeletePolicy(ctx, id)
 }
