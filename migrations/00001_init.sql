@@ -1,6 +1,7 @@
+-- +goose Up
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- Один ключ доступа может использоваться несколькими приложениями-клиентами
+-- One access policy key can be used by multiple client applications
 CREATE TABLE access_policies (
     id uuid PRIMARY KEY,
     name text NOT NULL UNIQUE,
@@ -25,7 +26,7 @@ CREATE TABLE variables (
     UNIQUE (key, environment_id)
 );
 
--- Окружение может иметь ключ доступа, но это не обязательно
+-- An environment may have an access policy, but it is optional
 CREATE TABLE environments_access_policies (
     access_policy_id uuid NOT NULL REFERENCES access_policies(id) ON DELETE CASCADE,
     environment_id uuid NOT NULL REFERENCES environments(id) ON DELETE CASCADE,
@@ -34,7 +35,14 @@ CREATE TABLE environments_access_policies (
 );
 
 CREATE TYPE variable_entry AS (
-  key varchar(255),
-  value text,
-  environment_id uuid
+    key varchar(255),
+    value text,
+    environment_id uuid
 );
+
+-- +goose Down
+DROP TABLE IF EXISTS environments_access_policies;
+DROP TABLE IF EXISTS variables;
+DROP TABLE IF EXISTS environments;
+DROP TABLE IF EXISTS access_policies;
+DROP TYPE IF EXISTS variable_entry;

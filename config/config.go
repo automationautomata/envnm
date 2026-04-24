@@ -96,7 +96,7 @@ type CLIConfig struct {
 	Certificate CertificateConfig `envPrefix:"ENVMN_CLIENT_"`
 }
 
-func Load[T StartupConfig | CLIConfig]() (T, error) {
+func Load[T any]() (T, error) {
 	return env.ParseAs[T]()
 }
 
